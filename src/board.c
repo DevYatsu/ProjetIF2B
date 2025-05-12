@@ -20,6 +20,7 @@ Board init_board(const uint8_t dim) {
     // Allocation de chaque ligne (colonnes)
     for (uint8_t i = 0; i < dim; ++i) {
         board.tiles[i] = malloc(dim * sizeof(Tile));
+
         if (board.tiles[i] == NULL) {
             perror("Failed to allocate memory for board columns");
             // Libère ce qui a déjà été alloué en cas d'erreur
@@ -27,6 +28,13 @@ Board init_board(const uint8_t dim) {
                 free(board.tiles[j]);
             free(board.tiles);
             exit(EXIT_FAILURE);
+        }
+    }
+
+    // Initialisation des cases du plateau
+    for (uint8_t x = 0; x < dim; ++x) {
+        for (uint8_t y = 0; y < dim; ++y) {
+            board.tiles[x][y] = init_tile(None, x, y);
         }
     }
 

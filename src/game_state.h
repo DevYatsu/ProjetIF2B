@@ -5,18 +5,31 @@
 #include "player.h"
 #include "board.h"
 
+/**
+ * @brief Enum représentant les modes de jeu disponibles.
+ *
+ * - `Conquest` : Mode basé sur la conquête du plateau.
+ * - `Connect` : Mode basé sur la connexion de pièces (similaire à puissance 4, par exemple).
+ */
 typedef enum {
-    Conquest,
-    Connect
+    Conquest, ///< Mode conquête
+    Connect   ///< Mode connecte
 } GameMode;
 
+/**
+ * @brief Structure représentant l'état complet d'une partie.
+ *
+ * Cette structure regroupe toutes les informations nécessaires pour décrire
+ * un instant précis du jeu :
+ * - Le mode de jeu sélectionné
+ * - L'état du plateau (`Board`)
+ * - Le joueur dont c'est le tour (`Player`)
+ */
 typedef struct {
-    GameMode mode;
-    Board board;
-    Player is_turn_of;
+    GameMode mode;       ///< Mode de jeu actuel
+    Board board;         ///< Plateau de jeu avec les positions des pièces
+    Player is_turn_of;   ///< Joueur à qui c'est le tour (User ou AI)
 } GameState;
-
-GameState deserialize(const char* str);
 
 /**
  * Initialise un état de jeu complet avec le mode et la taille spécifiée.

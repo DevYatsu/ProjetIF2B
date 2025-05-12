@@ -12,4 +12,5 @@ add_executable(ProjetIF2B src/main.c
         src/game_state.c
         src/game_state.h
         src/board.c
-        src/board.h)
+        src/board.h
+        src/save.h)
