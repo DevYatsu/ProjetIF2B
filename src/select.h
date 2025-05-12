@@ -5,7 +5,7 @@
 #ifndef SELECT_H
 #define SELECT_H
 #include <stdio.h>
-#include <stdint.h>
+#include "game_state.h"
 
 /**
  * @brief Affiche un menu et lit une option utilisateur comprise entre 1 et 3.
@@ -33,9 +33,9 @@ __uint8_t select_option();
  * L'utilisateur est invité à faire un choix entre 1 et 2.
  * La saisie est répétée jusqu'à ce qu'un choix valide soit entré.
  *
- * @return __uint8_t Le mode sélectionné par l'utilisateur (1 ou 2).
+ * @return GameMode Le mode sélectionné par l'utilisateur.
  */
-__uint8_t select_mode();
+GameMode select_mode();
 /**
  * @brief Demande à l'utilisateur de choisir la taille de l'échiquier.
  *

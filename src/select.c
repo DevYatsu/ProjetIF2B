@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdint.h>
+#include "game_state.h"
 
 __uint8_t select_option() {
     int option;
@@ -10,17 +10,19 @@ __uint8_t select_option() {
     printf("\t3. Quitter\n");
 
     printf("Votre choix : ");
-    scanf("%ui", &option);
+    // voir https://forums.codeguru.com/showthread.php?329329-When-I-input-chars-in-a-scanf
+    // scanf returns the number of items successfully read
+    if (!scanf("%u", &option)) option = 0;
 
     while (option < 1 || option > 3) {
         printf("Choix invalide: ");
-        scanf("%ui", &option);
+        if (!scanf("%u", &option)) option = 0;
     }
 
     return (__uint8_t)option;
 }
 
-__uint8_t select_mode() {
+GameMode select_mode() {
     unsigned int mode;
 
     printf("Choisissez un mode:\n");
@@ -28,25 +30,25 @@ __uint8_t select_mode() {
     printf("\t2. Connecte\n");
 
     printf("Votre choix : ");
-    scanf("%ui", &mode);
+    if (!scanf("%u", &mode)) mode = 0;
 
     while (mode < 1 || mode > 2) {
         printf("Choix invalide : ");
-        scanf("%ui", &mode);
+        if (!scanf("%u", &mode)) mode = 0;
     }
 
-    return (__uint8_t)mode;
+    return mode == 1 ? Conquest : Connect;
 }
 
 __uint8_t select_dimension() {
     unsigned int dim;
 
     printf("Entrer les dimensions de l'échiquier: (ex: 8 pour 8x8) ");
-    scanf("%ui", &dim);
+    if (!scanf("%u", &dim)) dim = 0;
 
     while (dim < 6 || dim > 12) {
         printf("La taille doit être comprise entre 6 et 12: ");
-        scanf("%ui", &dim);
+        if (!scanf("%u", &dim)) dim = 0;
     }
 
     return (__uint8_t)dim;
