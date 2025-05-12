@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>2
+#include <time.h>
 #include "game_state.h"
 #include "player.h"
 #include "select.h"
@@ -14,13 +14,13 @@ int main(void) {
     __uint8_t mode = 0;
 
     switch (option) {
-        case 1:
+        case Start:
             mode = select_mode();
             break;
-        case 2:
+        case Restart:
             printf("Reprendre une partie\n");
             break;
-        case 3:
+        case Leave:
             printf("Bye\n");
             return 0;
         default:
@@ -38,7 +38,7 @@ int main(void) {
 
     printf("Game state initialized\n");
 
-    deserialize(" Conquest User");
+    deserialize("Conquest User 6 Knight Queen None Knight Queen None Knight Queen None Knight Queen None Knight Queen None Knight Queen None Knight Queen None Knight Queen None Knight Queen None Knight Queen None Knight Queen None Knight Queen None ");
 
     free_game_state(&game_state);
     return 0;

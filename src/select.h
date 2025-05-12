@@ -7,6 +7,10 @@
 #include <stdio.h>
 #include "game_state.h"
 
+typedef enum {
+    Start, Restart, Leave
+} Option;
+
 /**
  * @brief Affiche un menu et lit une option utilisateur comprise entre 1 et 3.
  *
@@ -19,9 +23,9 @@
  * vérifie que la valeur est comprise entre 1 et 3,
  * et renvoie ce choix sous forme d'un entier non signé sur 8 bits.
  *
- * @return __uint8_t Le choix de l'utilisateur (1, 2 ou 3).
+ * @return Option Le choix de l'utilisateur.
  */
-__uint8_t select_option();
+Option select_option();
 
 /**
  * @brief Demande à l'utilisateur de choisir un mode de jeu.

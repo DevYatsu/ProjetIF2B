@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "game_state.h"
-
 #include <stdlib.h>
-
 #include "board.h"
 
 GameState init_game_state(const GameMode mode, const uint8_t dim) {
@@ -29,7 +27,7 @@ void debug_game_state(const GameState* state) {
         return;
     }
 
-    printf("  \tdim:%d\n", state->board.dim);
+    printf("  \tdim=%d\n", state->board.dim);
 
     for (uint8_t i = 0; i < state->board.dim; i++) {
         for (uint8_t j = 0; j < state->board.dim; j++) {
@@ -63,7 +61,8 @@ GameState deserialize(const char* str) {
     str = str + strlen(mode) + 1;
 
     char player[10];
-    sscanf(str, "%s ", player);
+    sscanf(str, "%9s ", player);
+    str = str + strlen(player) + 1;
 
     if (strcmp(player, "User") == 0) {
         state.is_turn_of = User;
@@ -75,22 +74,36 @@ GameState deserialize(const char* str) {
     }
 
     int dim;
-    sscanf(str, "%u ", &dim);
 
-    if (dim < 6 || dim > 12) {
+    if (!sscanf(str, "%2u ", &dim) || dim < 6 || dim > 12) {
         printf("Invalid deserialized dimension: %d\n", dim);
         exit(1);
     }
 
-    Board board;
+    const uint8_t dim_len = dim < 10 ? 1 : 2;
+    str = str + dim_len + 1;
 
-    board.dim = (uint8_t)dim;
-    board.tiles = malloc(dim * sizeof(Tile*));
+    const Board board = init_board((uint8_t)dim);
 
     if (board.tiles == NULL) {
         printf("Failed to allocate memory for board rows\n");
         exit(1);
     }
+
+    char piece_str[10];
+
+    for (uint8_t i = 0; i < board.dim; i++) {
+        for (uint8_t j = 0; j < board.dim; j++) {
+            // TODO add length constraint for each sscanf and scanf call
+            sscanf(str, "%9s ", piece_str);
+            const ChessPiece piece = piece_from_string(piece_str);
+            board.tiles[i][j] = init_tile(piece, i, j);
+            str = str + strlen(piece_str) + 1;
+        }
+        printf(" str: %s\n", str);
+    }
+
+    state.board = board;
 
     debug_game_state(&state);
 
