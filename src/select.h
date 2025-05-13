@@ -20,7 +20,7 @@ typedef enum {
  *
  * Elle lit l'entrée de l'utilisateur depuis le terminal,
  * vérifie que la valeur est comprise entre 1 et 3,
- * et renvoie ce choix sous forme d'un entier non signé sur 8 bits.
+ * et renvoie ce choix sous forme de l'enum Option.
  *
  * @return Option Le choix de l'utilisateur.
  */

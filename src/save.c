@@ -13,8 +13,6 @@ const unsigned int MAX_GAME_STATE_STR_LEN = strlen("Conquest ") + // longueur du
                               (12 * 12 * 10) + // 12 (max dim) et 10 pour chaque piece
                               100; // securité
 
-
-
 /**
  * @brief Sérialise un état de jeu (`GameState`) en chaîne de caractères.
  *

@@ -1,4 +1,3 @@
-
 #ifndef BOARD_H
 #define BOARD_H
 
@@ -8,13 +7,13 @@
  * @brief Types de pièces pouvant se trouver sur une case de l'échiquier (ou None=rien).
  */
 typedef enum {
+    None,    ///< Case vide
     King,    ///< Roi
     Queen,   ///< Reine
     Rook,    ///< Tour
     Bishop,  ///< Fou
     Knight,  ///< Cavalier
     Pawn,    ///< Pion
-    None     ///< Case vide
 } ChessPiece;
 
 /**

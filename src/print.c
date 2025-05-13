@@ -1,8 +1,5 @@
-
 #include "print.h"
-
 #include <stdio.h>
-#include <string.h>
 
 void print_effect(const char* str, const unsigned int delay_ms) {
     for (const char* c = str; *c != '\0'; ++c) {

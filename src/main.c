@@ -79,9 +79,11 @@ int main(void) {
 
     GameState game_state;
 
+    // 1 fonction == 1 fonctionnalité
+
     switch (option) {
         case Start: {
-            const uint8_t mode = select_mode();
+            const GameMode mode = select_mode();
             clear_screen();
 
             const uint8_t dim = select_dimension();
