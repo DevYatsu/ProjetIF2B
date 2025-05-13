@@ -18,7 +18,7 @@ Option select_option() {
         if (!scanf("%d", &option)) option = 0;
     }
 
-    return (Option)(option - 1);
+    return (Option)(option);
 }
 
 GameMode select_mode() {
@@ -36,7 +36,7 @@ GameMode select_mode() {
         if (!scanf("%d", &mode)) mode = 0;
     }
 
-    return (GameMode)(mode - 1);
+    return (GameMode)(mode);
 }
 
 __uint8_t select_dimension() {

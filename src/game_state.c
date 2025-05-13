@@ -12,9 +12,6 @@ GameState init_game_state(const GameMode mode, const uint8_t dim) {
     return state;
 }
 
-void free_game_state(const GameState *state) {
-    free_board(&state->board);
-}
 
 void debug_game_state(const GameState* state) {
     printf("GameState:\n");
@@ -35,4 +32,10 @@ void debug_game_state(const GameState* state) {
         }
         printf("\n");
     }
+}
+
+
+void free_game_state(const GameState *state) {
+    debug_game_state(state);
+    free_board(&state->board);
 }

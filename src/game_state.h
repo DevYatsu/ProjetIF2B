@@ -12,7 +12,7 @@
  * - `Connect` : Mode basé sur la connexion de pièces (similaire à puissance 4, par exemple).
  */
 typedef enum {
-    Conquest, ///< Mode conquête
+    Conquest = 1, ///< Mode conquête
     Connect   ///< Mode connecte
 } GameMode;
 

@@ -8,7 +8,7 @@
 #include "game_state.h"
 
 typedef enum {
-    Start, Restart, Leave
+    Start = 1, Restart, Leave
 } Option;
 
 /**

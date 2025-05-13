@@ -2,13 +2,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include "game_state.h"
-#include "player.h"
 #include "select.h"
-#include  "game_state.h"
 #include "print.h"
 #include "save.h"
 
-#include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
@@ -62,20 +59,20 @@ void test() {
 
 int main(void) {
     srand(time(0));
-    test();
+    // test();
 
     print_effect("=== Bienvenue dans le jeu ===  ", 50);
     sleep_ms(500);
     erase_effect("=== Bienvenue dans le jeu ===  ", 25);
     sleep_ms(500);
 
-    print_effect("=== Appuyez sur <Entrer> pour continuer ===  ", 50);
-
-    while (getchar() != '\n') {
-        // Attendre que l'utilisateur appuie sur une touche
-    }
-    
-    erase_effect("\n=== Appuyez sur une touche pour continuer ===  ", 25);
+    // print_effect("=== Appuyez sur <Entrer> pour continuer ===  ", 50);
+    //
+    // while (getchar() != '\n') {
+    //     // Attendre que l'utilisateur appuie sur une touche
+    // }
+    //
+    // erase_effect("\n=== Appuyez sur une touche pour continuer ===  ", 25);
 
     const Option option = select_option();
     clear_screen();
