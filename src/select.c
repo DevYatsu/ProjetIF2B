@@ -4,6 +4,11 @@
 #include "game_state.h"
 #include "print.h"
 
+#ifndef  _WIN32
+typedef uint8_t __uint8_t;
+#endif
+
+
 Option select_option() {
     int option;
 
@@ -39,7 +44,7 @@ GameMode select_mode() {
     return (GameMode)(mode);
 }
 
-__uint8_t select_dimension() {
+uint8_t select_dimension() {
     unsigned int dim;
 
     print_text("Entrer les dimensions de l'échiquier: (ex: 8 pour 8x8) ");
