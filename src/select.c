@@ -4,11 +4,6 @@
 #include "game_state.h"
 #include "print.h"
 
-#ifndef  _WIN32
-typedef uint8_t __uint8_t;
-#endif
-
-
 Option select_option() {
     int option;
 
