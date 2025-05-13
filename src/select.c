@@ -39,7 +39,7 @@ GameMode select_mode() {
     return (GameMode)(mode);
 }
 
-__uint8_t select_dimension() {
+uint8_t select_dimension() {
     unsigned int dim;
 
     print_text("Entrer les dimensions de l'échiquier: (ex: 8 pour 8x8) ");

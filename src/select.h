@@ -1,11 +1,10 @@
-//
-// Created by Yanis on 12/05/2025.
-//
-
 #ifndef SELECT_H
 #define SELECT_H
-#include <stdio.h>
 #include "game_state.h"
+
+#ifndef  _WIN32
+typedef uint8_t __uint8_t;
+#endif
 
 typedef enum {
     Start = 1, Restart, Leave
@@ -49,5 +48,5 @@ GameMode select_mode();
  *
  * @return __uint8_t La dimension choisie pour l'échiquier (entre 6 et 12).
  */
-__uint8_t select_dimension();
+uint8_t select_dimension();
 #endif //SELECT_H
