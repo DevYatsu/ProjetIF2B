@@ -6,37 +6,37 @@
 #include "print.h"
 #include "save.h"
 
-#include <sys/ioctl.h>
-#include <unistd.h>
+// #include <sys/ioctl.h>
+// #include <unistd.h>
 
-void move_cursor(int row, int col) {
-    printf("\033[%d;%dH", row, col);
-    fflush(stdout);
-}
-
-int get_terminal_size(int* rows, int* cols) {
-    struct winsize w;
-    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1) return -1;
-    *rows = w.ws_row;
-    *cols = w.ws_col;
-    return 0;
-}
-
-void center_cursor() {
-    int rows, cols;
-    if (get_terminal_size(&rows, &cols) == -1) {
-        perror("Failed to get terminal size");
-        return;
-    }
-
-    int center_row = rows / 2;
-    int center_col = (cols - (cols / 3)) / 2;
-
-    move_cursor(center_row, center_col);
-
-    print_effect("", 20);
-    fflush(stdout);
-}
+// void move_cursor(int row, int col) {
+//     printf("\033[%d;%dH", row, col);
+//     fflush(stdout);
+// }
+//
+// int get_terminal_size(int* rows, int* cols) {
+//     struct winsize w;
+//     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1) return -1;
+//     *rows = w.ws_row;
+//     *cols = w.ws_col;
+//     return 0;
+// }
+//
+// void center_cursor() {
+//     int rows, cols;
+//     if (get_terminal_size(&rows, &cols) == -1) {
+//         perror("Failed to get terminal size");
+//         return;
+//     }
+//
+//     int center_row = rows / 2;
+//     int center_col = (cols - (cols / 3)) / 2;
+//
+//     move_cursor(center_row, center_col);
+//
+//     print_effect("", 20);
+//     fflush(stdout);
+// }
 
 void test() {
     printf("test\n");       // Line 1
@@ -81,10 +81,10 @@ int main(void) {
 
     switch (option) {
         case Start: {
-            const __uint8_t mode = select_mode();
+            const uint8_t mode = select_mode();
             clear_screen();
 
-            const __uint8_t dim = select_dimension();
+            const uint8_t dim = select_dimension();
             clear_screen();
 
             game_state = init_game_state(mode, dim);

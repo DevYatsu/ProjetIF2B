@@ -50,5 +50,5 @@ uint8_t select_dimension() {
         if (!scanf("%d", &dim)) dim = 0;
     }
 
-    return (__uint8_t)dim;
+    return (uint8_t)dim;
 }
