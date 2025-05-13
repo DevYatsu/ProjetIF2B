@@ -59,7 +59,6 @@ void test() {
 
 int main(void) {
     srand(time(0));
-    // test();
 
     print_effect("=== Bienvenue dans le jeu ===  ", 50);
     sleep_ms(500);
