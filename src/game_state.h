@@ -36,6 +36,10 @@ typedef struct {
  */
 GameState init_game_state(GameMode mode, uint8_t dim);
 
+void toggle_user_turn(GameState* state);
+
+char* get_user_turn_name(const GameState* state);
+
 /**
  * Libère la mémoire du plateau associée à l'état de jeu.
  */

@@ -2,19 +2,7 @@
 #define BOARD_H
 
 #include <stdint.h>
-
-/**
- * @brief Types de pièces pouvant se trouver sur une case de l'échiquier (ou None=rien).
- */
-typedef enum {
-    None,    ///< Case vide
-    King,    ///< Roi
-    Queen,   ///< Reine
-    Rook,    ///< Tour
-    Bishop,  ///< Fou
-    Knight,  ///< Cavalier
-    Pawn,    ///< Pion
-} ChessPiece;
+#include "piece.h"
 
 /**
  * @brief Représente une case du plateau avec une pièce et ses coordonnées.
@@ -55,32 +43,6 @@ Board init_board(uint8_t dim);
  * @return Tile La tuile initialisée avec les valeurs spécifiées.
  */
 Tile init_tile(ChessPiece piece, uint8_t x, uint8_t y);
-
-
-/**
- * @brief Convertit une chaîne en type de pièce d'échecs.
- *
- * Cette fonction prend une chaîne de caractères (sans espaces au début ni à la fin)
- * représentant une pièce d'échecs en anglais, et retourne la valeur correspondante
- * du type `ChessPiece`.
- *
- * Chaînes valides :
- * - `"King"`
- * - `"Queen"`
- * - `"Rook"`
- * - `"Bishop"`
- * - `"Knight"`
- * - `"Pawn"`
- * - `"None"`
- *
- * Si la chaîne correspond exactement à `"None"`, la fonction retourne la pièce `None`.
- * Si la chaîne ne correspond à aucune valeur connue, un message d'erreur est affiché
- * sur la sortie standard d'erreur et le programme est arrêté avec `exit(EXIT_FAILURE)`.
- *
- * @param piece_str Chaîne représentant une pièce d'échecs (sans espaces extérieurs).
- * @return ChessPiece La pièce correspondante (peut-être None).
- */
-ChessPiece piece_from_string(const char* piece_str);
 
 /**
  * @brief Libère la mémoire allouée dynamiquement pour un plateau.

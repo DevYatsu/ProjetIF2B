@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <string.h>
 #include "game_state.h"
 #include <stdlib.h>
 #include "board.h"
@@ -12,6 +11,17 @@ GameState init_game_state(const GameMode mode, const uint8_t dim) {
     return state;
 }
 
+void toggle_user_turn(GameState* state) {
+    if (state->is_turn_of == User) {
+        state->is_turn_of = AI;
+    } else {
+        state->is_turn_of = User;
+    }
+}
+
+char* get_user_turn_name(const GameState* state) {
+    return state->is_turn_of == User ? "User" : "AI";
+}
 
 void debug_game_state(const GameState* state) {
     printf("GameState:\n");

@@ -5,6 +5,7 @@
 #include "select.h"
 #include "print.h"
 #include "save.h"
+#include "piece.h"
 
 // #include <sys/ioctl.h>
 // #include <unistd.h>
@@ -106,9 +107,42 @@ int main(void) {
         case Leave:
             printf("Bye\n");
             return 0;
+        default:
+            // unreachable
+            return 1;
     }
 
     printf("Game state initialized\n");
+
+    printf("Au tour de %s\n", get_user_turn_name(&game_state));
+
+    switch (game_state.mode) {
+        case Conquest: {
+            char nom_piece[10];
+            printf("Quelle pièce souhaitez-vous jouer ? ");
+            scanf("%s", nom_piece);
+
+            ChessPiece piece = piece_from_string(nom_piece);
+
+            while (piece == None) {
+                printf("Pièce invalide: ");
+                scanf("%s", nom_piece);
+                piece = piece_from_string(nom_piece);
+            }
+
+            printf("Où souhaitez-vous la placer ? ");
+
+
+            break;
+        }
+        case Connect: {
+
+            break;
+        }
+        default:
+            // unreachable
+            return 1;
+    }
 
     free_game_state(&game_state);
     return 0;

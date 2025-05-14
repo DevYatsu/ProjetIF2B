@@ -16,4 +16,6 @@ add_executable(ProjetIF2B src/main.c
         src/save.h
         src/print.c
         src/print.h
+        src/piece.c
+        src/piece.h
 )

@@ -3,8 +3,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "game_state.h"
+#include "piece.h"
+
 const char* FILENAME = "savegame.dat";
 
 const unsigned int MAX_GAME_STATE_STR_LEN = strlen("Conquest ") + // longueur du plus grand entre Conquest et Connect
@@ -164,7 +165,7 @@ GameState deserialize(const char* str) {
         for (uint8_t j = 0; j < board.dim; j++) {
             // TODO add length constraint for each sscanf and scanf call
             sscanf(str, "%9s ", piece_str);
-            const ChessPiece piece = piece_from_string(piece_str);
+            const ChessPiece piece = deserialize_piece(piece_str);
             board.tiles[i][j] = init_tile(piece, i, j);
             str = str + strlen(piece_str) + 1;
         }
@@ -185,7 +186,7 @@ bool save_game(const GameState* state) {
 
     char* serialized = serialize(state);
 
-    if (!fprintf(file, serialized)) {
+    if (!fprintf(file, "%s", serialized)) {
         perror("Failed to write to file");
         fclose(file);
         return true;
@@ -215,7 +216,7 @@ GameState load_game() {
     }
 
     char* content = malloc(sizeof(char) * MAX_GAME_STATE_STR_LEN);
-    fscanf(file, content);
+    fscanf(file, "%s", content);
 
     const GameState state = deserialize(content);
     free(content);
