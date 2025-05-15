@@ -117,14 +117,14 @@ int main(void) {
     bool game_over = false;
 
     while (!game_over) {
+        print_board(&game_state);
+
         const RoundOption round_option = select_round_option();
 
         switch (round_option) {
             case Play: {
                 printf("Vous avez choisi de jouer.\n");
 
-                print_board(&game_state);
-                
                 switch (game_state.mode) {
                     case Conquest: {
                         char nom_piece[10];
@@ -188,7 +188,7 @@ int main(void) {
                         }
 
                         game_state.board.tiles[y][x] = init_tile(option_piece);
-
+                        clear_screen();
                         break;
                     }
                     case Connect: {
