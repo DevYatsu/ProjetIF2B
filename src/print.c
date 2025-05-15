@@ -21,8 +21,15 @@ void erase_effect(const char* str, const unsigned int delay_ms) {
     }
 }
 
+#include <stdlib.h>
+
 void clear_screen() {
-    printf("\e[1;1H\e[2J");
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+
     //     system("@cls||clear");
 }
 

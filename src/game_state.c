@@ -51,7 +51,7 @@ void print_board(const GameState* state) {
     const uint8_t dim = state->board.dim;
 
     printf("\n");
-    printf("     ");
+    printf("      ");
     for (uint8_t j = 0; j < dim; j++) {
         printf("  %c  ", 'A' + j);
         printf(" ");
@@ -100,7 +100,7 @@ void print_board(const GameState* state) {
     }
 
     // Affichage des lettres en bas
-    printf("     ");
+    printf("      ");
     for (uint8_t j = 0; j < dim; j++) {
         printf("  %c  ", 'A' + j);
         printf(" ");

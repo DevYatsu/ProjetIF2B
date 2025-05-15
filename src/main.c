@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -9,37 +10,6 @@
 
 // #include <sys/ioctl.h>
 // #include <unistd.h>
-
-//
-// void move_cursor(int row, int col) {
-//     printf("\033[%d;%dH", row, col);
-//     fflush(stdout);
-// }
-//
-//
-// int get_terminal_size(int* rows, int* cols) {
-//     struct winsize w;
-//     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1) return -1;
-//     *rows = w.ws_row;
-//     *cols = w.ws_col;
-//     return 0;
-// }
-//
-// void center_cursor() {
-//     int rows, cols;
-//     if (get_terminal_size(&rows, &cols) == -1) {
-//         perror("Failed to get terminal size");
-//         return;
-//     }
-//
-//     int center_row = rows / 2;
-//     int center_col = (cols - (cols / 3)) / 2;
-//
-//     move_cursor(center_row, center_col);
-//
-//     print_effect("", 20);
-//     fflush(stdout);
-// }
 
 void test() {
     printf("test\n");       // Line 1
@@ -60,24 +30,32 @@ void test() {
     exit(0);
 }
 
+void print_title_screen() {
+    clear_screen();
+
+    print_text("     | |\n");
+    print_text("  ___| |__   ___  ___ ___\n");
+    print_text(" / __| '_ \\ / _ \\/ __/ __|\n");
+    print_text("| (__| | | |  __/\\__ \\__ \\\n");
+    print_text(" \\___|_| |_|\\___||___/___/\n\n\n");
+
+    print_text("\n⚠️  Ce jeu est conçu pour être joué dans un vrai terminal.\n");
+    print_text("   Évitez d'utiliser la sortie CLion / IDE (Run) pour un affichage correct.\n\n\n");
+
+    print_text("Appuyez sur <Entrer> pour commencer la partie.\n\n\n");
+
+    while(getchar() != '\n') {
+        // Attendre que l'utilisateur appuie sur une touche
+    }
+
+    clear_screen();
+}
+
 // questions pour le prof
 // est-ce que les deux joueurs sont humains ou bien l'un est un bot ?
 int main(void) {
-    /*
-     * imprimer cela au debut
-     *_
-     | |
-  ___| |__   ___  ___ ___
- / __| '_ \ / _ \/ __/ __|
-| (__| | | |  __/\__ \__ \
- \___|_| |_|\___||___/___/
- */
-
     srand(time(0));
-    print_effect("=== Bienvenue dans le jeu ===  ", 10);
-    sleep_ms(200);
-    erase_effect("=== Bienvenue dans le jeu ===  ", 10);
-    sleep_ms(200);
+    print_title_screen();
 
     // print_effect("=== Appuyez sur <Entrer> pour continuer ===  ", 50);
     //
@@ -113,24 +91,28 @@ int main(void) {
 
             printf("Chargement de la partie...\n");
             game_state = load_game();
-            printf("Partie chargée!\n");
+            sleep_ms(750);
+            clear_screen();
+            print_text("Partie chargée!\n");
             break;
         }
         case Leave:
-            printf("Bye\n");
+            print_text("Bye\n");
             return 0;
         default:
             // unreachable
             return 1;
     }
 
-    printf("Game state initialized \n");
-
     if (game_state.is_white == User) {
-        printf("Vous êtes les blancs!\n");
+        print_text("Vous êtes les blancs!\n");
     } else {
-        printf("Vous êtes les noirs!\n");
+        print_text("Vous êtes les noirs!\n");
     }
+
+    sleep_ms(500);
+    clear_screen();
+    sleep_ms(200);
 
     print_board(&game_state);
 
@@ -147,20 +129,35 @@ int main(void) {
                     case Conquest: {
                         char nom_piece[10];
                         printf("Quelle pièce souhaitez-vous jouer ? ");
-                        scanf("%s", nom_piece);
+                        scanf("%9s", nom_piece);
 
                         const char* current_player_str = stringify_player(game_state.is_turn_of);
                         OptionChessPiece option_piece = deserialize_piece(nom_piece, current_player_str, true);
 
                         while (!option_piece.some) {
                             printf("Pièce invalide: ");
-                            scanf("%s", nom_piece);
+                            scanf("%9s", nom_piece);
                             option_piece = deserialize_piece(nom_piece, current_player_str, true);
                         }
 
+                        char target_tile[4];
                         printf("Où souhaitez-vous la placer ? ");
+                        scanf("%3s", target_tile);
 
+                        const uint8_t dim = game_state.board.dim;
+                        uint8_t x = toupper(target_tile[0]) - 'A';
+                        uint8_t y = dim - atoi(target_tile + 1);
 
+                        while (x < 0 || x >= dim || y < 0 || y >= dim) {
+                            printf("Coordonnées invalides: %s\n", target_tile);
+                            printf("Où souhaitez-vous la placer ? ");
+                            scanf("%2s", target_tile);
+
+                            x = toupper(target_tile[0]) - 'A';
+                            y = dim - atoi(target_tile + 1);
+                        }
+
+                        printf("Vous avez sélectionné la case ligne %d, colonne %d\n", x, y);
                         break;
                     }
                     case Connect: {

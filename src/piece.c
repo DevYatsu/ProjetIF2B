@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "piece.h"
 
+#include <ctype.h>
+
 AsciiPiece piece_as_white_ascii(const PieceKind kind) {
     const char* line_bottom = "/___\\";
     switch (kind) {
