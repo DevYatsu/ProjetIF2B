@@ -117,6 +117,7 @@ int main(void) {
     bool game_over = false;
 
     while (!game_over) {
+        // TODO! afficher le joueur à qui c'est le tour en gros
         print_board(&game_state);
 
         const RoundOption round_option = select_round_option();
