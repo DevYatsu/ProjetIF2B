@@ -71,7 +71,7 @@ void print_board(const GameState* state) {
             for (uint8_t j = 0; j < dim; j++) {
                 const OptionChessPiece piece = state->board.tiles[i][j].piece;
 
-                AsciiPiece p = { "XXXXX", "XXXXX", "XXXXX" };
+                AsciiPiece p = { "·····", "·····", "·····" };
 
                 if (piece.some) {
                     if (piece.value.player == User) {
