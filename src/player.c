@@ -2,10 +2,10 @@
 #include <stdlib.h>
 
 char* stringify_player(const Player player) {
-    return (player == User ? "User" : "AI");
+    return (player == User ? "User" : "Opponent");
 }
 
 Player random_player() {
-    return (rand() % 2 == 0 ? User : AI);
+    return (rand() % 2 == 0 ? User : Opponent);
 }
 

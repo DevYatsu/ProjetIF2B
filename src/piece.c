@@ -3,15 +3,13 @@
 #include <stdlib.h>
 #include "piece.h"
 
-#include <ctype.h>
-
 AsciiPiece piece_as_white_ascii(const PieceKind kind) {
     const char* line_bottom = "/___\\";
     switch (kind) {
         case King: return (AsciiPiece){ .line1 = " \\+/ ", .line2 = " ) ( ", .line3 = line_bottom };
         case Queen: return (AsciiPiece){ .line1 = " \\^/ ", .line2 = " ) ( ", .line3 = line_bottom };
         case Rook: return (AsciiPiece){ .line1 = " (V) ", .line2 = " ) ( ", .line3 = line_bottom };
-        case Bishop: return (AsciiPiece){ .line1 = " (\"\\ ", .line2 = "  (#)  ", .line3 = line_bottom };
+        case Bishop: return (AsciiPiece){ .line1 = " (\"\\ ", .line2 = " (#) ", .line3 = line_bottom };
         case Knight: return (AsciiPiece){ .line1 = " [-] ", .line2 = " (#/)  ", .line3 = line_bottom };
         case Pawn: return (AsciiPiece){ .line1 = "  _  ", .line2 = " |##|  ", .line3 = line_bottom };
         default: return (AsciiPiece){ .line1 = "  ?  ", .line2 = "  ???  ", .line3 = "?????" };
@@ -56,8 +54,8 @@ OptionChessPiece deserialize_piece(const char* piece_str, const char* player_str
 
     if (strcmp(player_str, "User") == 0) {
         player = User;
-    } else if (strcmp(player_str, "AI") == 0) {
-        player = AI;
+    } else if (strcmp(player_str, "Opponent") == 0) {
+        player = Opponent;
     } else {
         printf("Invalid player string: %s\n", player_str);
         exit(EXIT_FAILURE);

@@ -3,6 +3,7 @@
 #define GAME_STATE_H
 #include "player.h"
 #include "board.h"
+#include "piece_count_tracker.h"
 
 /**
  * @brief Enum représentant les modes de jeu disponibles.
@@ -29,6 +30,8 @@ typedef struct {
     Board board;         ///< Plateau de jeu avec les positions des pièces
     Player is_turn_of;   ///< Joueur à qui c'est le tour (User ou AI)
     Player is_white;     ///< Joueur qui joue avec les pièces blanches
+    PieceCountTracker piece_counter_1; // Compteur de pièces disponibles pour le joueur 1
+    PieceCountTracker piece_counter_2; // Compteur de pièces disponibles pour le joueur 2
 } GameState;
 
 /**

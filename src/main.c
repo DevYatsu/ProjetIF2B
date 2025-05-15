@@ -37,12 +37,12 @@ void print_title_screen() {
     print_text("  ___| |__   ___  ___ ___\n");
     print_text(" / __| '_ \\ / _ \\/ __/ __|\n");
     print_text("| (__| | | |  __/\\__ \\__ \\\n");
-    print_text(" \\___|_| |_|\\___||___/___/\n\n\n");
+    print_text(" \\___|_| |_|\\___||___/___/\n\n\n\n\n");
 
     print_text("\n⚠️  Ce jeu est conçu pour être joué dans un vrai terminal.\n");
-    print_text("   Évitez d'utiliser la sortie CLion / IDE (Run) pour un affichage correct.\n\n\n");
+    print_text("   Évitez d'utiliser la sortie CLion / IDE (Run) pour un affichage correct.\n\n\n\n\n");
 
-    print_text("Appuyez sur <Entrer> pour commencer la partie.\n\n\n");
+    print_text("Appuyez sur <Entrer> pour commencer la partie.\n\n\n\n\n");
 
     while(getchar() != '\n') {
         // Attendre que l'utilisateur appuie sur une touche
@@ -134,11 +134,27 @@ int main(void) {
                         const char* current_player_str = stringify_player(game_state.is_turn_of);
                         OptionChessPiece option_piece = deserialize_piece(nom_piece, current_player_str, true);
 
-                        while (!option_piece.some) {
-                            printf("Pièce invalide: ");
+                        PieceCountTracker *piece_counter = (game_state.is_turn_of == User)
+                            ? &game_state.piece_counter_1
+                            : &game_state.piece_counter_2;
+
+                        bool piece_allowed = add_piece(piece_counter, option_piece.value.kind);
+
+                        while (!option_piece.some || !piece_allowed) {
+                            if (!piece_allowed) {
+                                printf("Vous n'avez plus de %s à jouer: ", nom_piece);
+                                piece_allowed = true;
+                            } else {
+                                printf("Pièce inconnue: ");
+                            }
                             scanf("%9s", nom_piece);
                             option_piece = deserialize_piece(nom_piece, current_player_str, true);
+
+                            if (option_piece.some) {
+                                piece_allowed = add_piece(piece_counter, option_piece.value.kind);
+                            }
                         }
+
 
                         const uint8_t dim = game_state.board.dim;
                         uint8_t x = dim;
@@ -212,7 +228,13 @@ int main(void) {
                 if (!success) {
                     printf("Une erreur est survenue, nous n'avons pas pu sauvegarder la partie\n");
                 }
+                clear_screen();
+                print_text("Sauvegarde en cours...");
+                sleep_ms(500);
+                print_text("La partie a été sauvegardée avec succès.\n");
+                sleep_ms(400);
 
+                clear_screen();
                 break;
             }
         }

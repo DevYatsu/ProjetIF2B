@@ -7,15 +7,14 @@ GameState init_game_state(const GameMode mode, const uint8_t dim) {
     GameState state;
     state.mode = mode;
     state.board = init_board(dim);
-    const Player starting_player = random_player();
-    state.is_turn_of = starting_player;
-    state.is_white = starting_player;
+    state.is_turn_of = state.is_white = random_player();
+    state.piece_counter_1 = state.piece_counter_2 = init_piece_counter();
     return state;
 }
 
 void toggle_user_turn(GameState* state) {
     if (state->is_turn_of == User) {
-        state->is_turn_of = AI;
+        state->is_turn_of = Opponent;
     } else {
         state->is_turn_of = User;
     }

@@ -18,4 +18,6 @@ add_executable(ProjetIF2B src/main.c
         src/print.h
         src/piece.c
         src/piece.h
+        src/piece_count_tracker.c
+        src/piece_count_tracker.h
 )

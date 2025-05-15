@@ -9,8 +9,8 @@
  * @brief Représente les deux types de joueurs possibles dans la partie.
  */
 typedef  enum {
-    User, ///< Joueur humain
-    AI    ///< Intelligence artificielle
+    User,
+    Opponent
 } Player;
 
 
@@ -20,7 +20,7 @@ typedef  enum {
  * This function returns "User" for the `User` player and "AI" for the `AI` player.
  *
  * @param player The `Player` enum value to convert.
- * @return A string representing the player ("User" or "AI").
+ * @return A string representing the player.
  */
 char* stringify_player(Player player);
 

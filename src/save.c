@@ -35,8 +35,10 @@ char* serialize(const GameState* state) {
     str[0] = '\0';
 
     strcat(str, state->mode == Conquest ? "Conquest " : "Connect ");
-    strcat(str, state->is_white == User ? "User " : "AI ");
-    strcat(str, state->is_turn_of == User ? "User " : "AI ");
+    strcat(str, stringify_player(state->is_white));
+    strcat(str, " ");
+    strcat(str, stringify_player(state->is_turn_of));
+    strcat(str, " ");
 
     const Board board = state->board;
 
@@ -119,26 +121,26 @@ GameState deserialize(const char* str) {
         exit(1);
     }
 
-    char player[10];
-    sscanf(str, "%9s ", player);
+    char player[8];
+    sscanf(str, "%7s ", player);
     str = str + strlen(player) + 1;
 
     if (strcmp(player, "User") == 0) {
         state.is_white = User;
-    } else if (strcmp(player, "AI") == 0) {
-        state.is_white = AI;
+    } else if (strcmp(player, "Opponent") == 0) {
+        state.is_white = Opponent;
     } else {
         printf("Invalid deserialized player: %s\n", mode);
         exit(1);
     }
 
-    sscanf(str, "%9s ", player);
+    sscanf(str, "%7s ", player);
     str = str + strlen(player) + 1;
 
     if (strcmp(player, "User") == 0) {
         state.is_turn_of = User;
-    } else if (strcmp(player, "AI") == 0) {
-        state.is_turn_of = AI;
+    } else if (strcmp(player, "Opponent") == 0) {
+        state.is_turn_of = Opponent;
     } else {
         printf("Invalid deserialized player: %s\n", mode);
         exit(1);
@@ -162,7 +164,7 @@ GameState deserialize(const char* str) {
     }
 
     char piece_str[10];
-    char user_str[7];
+    char user_str[10];
 
     for (uint8_t i = 0; i < board.dim; i++) {
         for (uint8_t j = 0; j < board.dim; j++) {
@@ -178,7 +180,7 @@ GameState deserialize(const char* str) {
             if (strcmp(piece_str, "None") == 0) {
                 strcpy(user_str, "");
             } else {
-                const int parsed2 = sscanf(str, "%6s", user_str);
+                const int parsed2 = sscanf(str, "%10s", user_str);
 
                 if (parsed2 == 0) {
                     fprintf(stderr, "Error: malformed piece string near '%s'\n", str);
