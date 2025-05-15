@@ -63,11 +63,21 @@ void test() {
 // questions pour le prof
 // est-ce que les deux joueurs sont humains ou bien l'un est un bot ?
 int main(void) {
+    /*
+     * imprimer cela au debut
+     *_
+     | |
+  ___| |__   ___  ___ ___
+ / __| '_ \ / _ \/ __/ __|
+| (__| | | |  __/\__ \__ \
+ \___|_| |_|\___||___/___/
+ */
+
     srand(time(0));
-    print_effect("=== Bienvenue dans le jeu ===  ", 50);
-    sleep_ms(500);
-    erase_effect("=== Bienvenue dans le jeu ===  ", 25);
-    sleep_ms(500);
+    print_effect("=== Bienvenue dans le jeu ===  ", 10);
+    sleep_ms(200);
+    erase_effect("=== Bienvenue dans le jeu ===  ", 10);
+    sleep_ms(200);
 
     // print_effect("=== Appuyez sur <Entrer> pour continuer ===  ", 50);
     //
@@ -98,7 +108,6 @@ int main(void) {
         case Restart: {
             if (!save_file_exists()) {
                 print_effect("Aucune partie sauvegardée trouvée.\n", 50);
-                free_game_state(&game_state);
                 return 0;
             }
 
@@ -109,25 +118,26 @@ int main(void) {
         }
         case Leave:
             printf("Bye\n");
-            free_game_state(&game_state);
             return 0;
         default:
             // unreachable
             return 1;
     }
 
-    printf("Game state initialized\n");
+    printf("Game state initialized \n");
 
-    if (get_user_turn_name(&game_state) == User) {
+    if (game_state.is_white == User) {
         printf("Vous êtes les blancs!\n");
     } else {
         printf("Vous êtes les noirs!\n");
     }
 
+    print_board(&game_state);
+
     bool game_over = false;
 
     while (!game_over) {
-        RoundOption round_option = select_round_option();
+        const RoundOption round_option = select_round_option();
 
         switch (round_option) {
             case Play: {
@@ -169,9 +179,9 @@ int main(void) {
                 break;
             }
             case SaveGame: {
-                const bool result = save_game(&game_state);
+                const bool success = save_game(&game_state);
 
-                if (result) {
+                if (!success) {
                     printf("Une erreur est survenue, nous n'avons pas pu sauvegarder la partie\n");
                 }
 

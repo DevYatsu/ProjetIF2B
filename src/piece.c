@@ -3,6 +3,32 @@
 #include <stdlib.h>
 #include "piece.h"
 
+AsciiPiece piece_as_white_ascii(const PieceKind kind) {
+    const char* line_bottom = "/___\\";
+    switch (kind) {
+        case King: return (AsciiPiece){ .line1 = " \\+/ ", .line2 = " ) ( ", .line3 = line_bottom };
+        case Queen: return (AsciiPiece){ .line1 = " \\^/ ", .line2 = " ) ( ", .line3 = line_bottom };
+        case Rook: return (AsciiPiece){ .line1 = " (V) ", .line2 = " ) ( ", .line3 = line_bottom };
+        case Bishop: return (AsciiPiece){ .line1 = " (\"\\ ", .line2 = "  (#)  ", .line3 = line_bottom };
+        case Knight: return (AsciiPiece){ .line1 = " [-] ", .line2 = " (#/)  ", .line3 = line_bottom };
+        case Pawn: return (AsciiPiece){ .line1 = "  _  ", .line2 = " |##|  ", .line3 = line_bottom };
+        default: return (AsciiPiece){ .line1 = "  ?  ", .line2 = "  ???  ", .line3 = "?????" };
+    }
+}
+
+AsciiPiece piece_as_black_ascii(const PieceKind kind) {
+    const char* line_bottom = "/###\\";
+    switch (kind) {
+        case King: return (AsciiPiece){ .line1 = " \\+/ ", .line2 = " )#( ", .line3 = line_bottom };
+        case Queen: return (AsciiPiece){ .line1 = " \\^/ ", .line2 = " )#( ", .line3 = line_bottom };
+        case Rook: return (AsciiPiece){ .line1 = " (V) ", .line2 = " )#( ", .line3 = line_bottom };
+        case Bishop: return (AsciiPiece){ .line1 = " (\"\\ ", .line2 = " )#' ", .line3 = line_bottom };
+        case Knight: return (AsciiPiece){ .line1 = " [-] ", .line2 = " |#| ", .line3 = line_bottom };
+        case Pawn: return (AsciiPiece){ .line1 = "  _  ", .line2 = " (#) ", .line3 = line_bottom };
+        default: return (AsciiPiece){ .line1 = "  ?  ", .line2 = " ?B? ", .line3 = "?????" };
+    }
+}
+
 OptionChessPiece deserialize_piece(const char* piece_str, const char* player_str, const bool from_user_input) {
     ChessPiece piece;
     Player player;

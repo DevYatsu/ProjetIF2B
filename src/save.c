@@ -35,6 +35,7 @@ char* serialize(const GameState* state) {
     str[0] = '\0';
 
     strcat(str, state->mode == Conquest ? "Conquest " : "Connect ");
+    strcat(str, state->is_white == User ? "User " : "AI ");
     strcat(str, state->is_turn_of == User ? "User " : "AI ");
 
     const Board board = state->board;
@@ -51,12 +52,12 @@ char* serialize(const GameState* state) {
                 strcat(str, "None ");
             } else {
                 switch (option_piece.value.kind) {
-                    case King: strcat(str, "King-"); break;
-                    case Queen: strcat(str, "Queen-"); break;
-                    case Rook: strcat(str, "Rook-"); break;
-                    case Bishop: strcat(str, "Bishop-"); break;
-                    case Knight: strcat(str, "Knight-"); break;
-                    case Pawn: strcat(str, "Pawn-"); break;
+                    case King: strcat(str, "King "); break;
+                    case Queen: strcat(str, "Queen "); break;
+                    case Rook: strcat(str, "Rook "); break;
+                    case Bishop: strcat(str, "Bishop "); break;
+                    case Knight: strcat(str, "Knight "); break;
+                    case Pawn: strcat(str, "Pawn "); break;
                     default:
                         // unreachable
                         break;
@@ -123,6 +124,18 @@ GameState deserialize(const char* str) {
     str = str + strlen(player) + 1;
 
     if (strcmp(player, "User") == 0) {
+        state.is_white = User;
+    } else if (strcmp(player, "AI") == 0) {
+        state.is_white = AI;
+    } else {
+        printf("Invalid deserialized player: %s\n", mode);
+        exit(1);
+    }
+
+    sscanf(str, "%9s ", player);
+    str = str + strlen(player) + 1;
+
+    if (strcmp(player, "User") == 0) {
         state.is_turn_of = User;
     } else if (strcmp(player, "AI") == 0) {
         state.is_turn_of = AI;
@@ -153,11 +166,31 @@ GameState deserialize(const char* str) {
 
     for (uint8_t i = 0; i < board.dim; i++) {
         for (uint8_t j = 0; j < board.dim; j++) {
-            // TODO add length constraint for each sscanf and scanf call
-            sscanf(str, "%9s-%6s ", piece_str, user_str);
+            const int parsed = sscanf(str, "%9s ", piece_str);
+
+            if (parsed == 0) {
+                fprintf(stderr, "Error: malformed piece string near '%s'\n", str);
+                exit(EXIT_FAILURE);
+            }
+
+            str += strlen(piece_str) + 1;
+
+            if (strcmp(piece_str, "None") == 0) {
+                strcpy(user_str, "");
+            } else {
+                const int parsed2 = sscanf(str, "%6s", user_str);
+
+                if (parsed2 == 0) {
+                    fprintf(stderr, "Error: malformed piece string near '%s'\n", str);
+                    exit(EXIT_FAILURE);
+                }
+
+                str += strlen(user_str) + 1;
+            }
+
+            // TODO!: verifier que deserialize_piece n'a aucun soucis
             const OptionChessPiece piece = deserialize_piece(piece_str, user_str, true);
             board.tiles[i][j] = init_tile(piece, i, j);
-            str = str + strlen(piece_str) + 1;
         }
     }
 

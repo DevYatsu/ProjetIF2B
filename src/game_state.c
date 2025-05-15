@@ -7,7 +7,9 @@ GameState init_game_state(const GameMode mode, const uint8_t dim) {
     GameState state;
     state.mode = mode;
     state.board = init_board(dim);
-    state.is_turn_of = random_player();
+    const Player starting_player = random_player();
+    state.is_turn_of = starting_player;
+    state.is_white = starting_player;
     return state;
 }
 
@@ -45,8 +47,68 @@ void debug_game_state(const GameState* state) {
     }
 }
 
+void print_board(const GameState* state) {
+    const uint8_t dim = state->board.dim;
+
+    printf("\n");
+    printf("     ");
+    for (uint8_t j = 0; j < dim; j++) {
+        printf("  %c  ", 'A' + j);
+        printf(" ");
+    }
+    printf("\n");
+    printf("\n");
+    for (uint8_t i = 0; i < dim; i++) {
+        for (int line = 0; line < 3; line++) {
+            if (line == 1) {
+                // Affichage du numéro de ligne au centre de la pièce
+                printf(" %2d  ", dim - i);  // étiquette de la ligne (comme aux échecs)
+            } else {
+                printf("     ");
+            }
+
+
+            for (uint8_t j = 0; j < dim; j++) {
+                const OptionChessPiece piece = state->board.tiles[i][j].piece;
+
+                AsciiPiece p = { "XXXXX", "XXXXX", "XXXXX" };
+
+                if (piece.some) {
+                    if (piece.value.player == User) {
+                        p = piece_as_white_ascii(piece.value.kind);
+                    } else {
+                        p = piece_as_black_ascii(piece.value.kind);
+                    }
+                }
+
+                switch (line) {
+                    case 0: printf(" %s", p.line1); break;
+                    case 1: printf(" %s", p.line2); break;
+                    case 2: printf(" %s", p.line3); break;
+                    default: perror("should be unreachable");
+                        exit(EXIT_FAILURE);
+                }
+            }
+
+            if (line == 1) {
+                printf("   %2d", dim - i); // Répéter le numéro de ligne à droite
+            }
+
+            printf("\n");
+        }
+        printf("\n"); // separate rows visually
+    }
+
+    // Affichage des lettres en bas
+    printf("     ");
+    for (uint8_t j = 0; j < dim; j++) {
+        printf("  %c  ", 'A' + j);
+        printf(" ");
+    }
+    printf("\n");
+    printf("\n");
+}
 
 void free_game_state(const GameState *state) {
-    debug_game_state(state);
     free_board(&state->board);
 }
