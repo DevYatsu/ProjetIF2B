@@ -4,7 +4,7 @@
 #include "game_state.h"
 #include "print.h"
 
-Option select_option() {
+StartOption select_option() {
     int option;
 
     print_text("Choisissez une option:\n\t1. Démarrer une partie\n\t2. Reprendre une partie\n\t3. Quitter\n");
@@ -18,8 +18,26 @@ Option select_option() {
         if (!scanf("%d", &option)) option = 0;
     }
 
-    return (Option)(option);
+    return (StartOption)(option);
 }
+
+RoundOption select_round_option() {
+    int option;
+
+    print_text("Choisissez une option:\n\t1. Poser une pièce\n\t2. Abandonner\n\t3. Sauvegarder la partie\n");
+    print_text("Votre choix : ");
+    // voir https://forums.codeguru.com/showthread.php?329329-When-I-input-chars-in-a-scanf
+    // scanf returns the number of items successfully read
+    if (!scanf("%d", &option)) option = 0;
+
+    while (option < 1 || option > 3) {
+        print_text("Choix invalide: ");
+        if (!scanf("%d", &option)) option = 0;
+    }
+
+    return (RoundOption)(option);
+}
+
 
 GameMode select_mode() {
     unsigned int mode;

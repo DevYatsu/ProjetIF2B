@@ -5,37 +5,31 @@
 #include <stdbool.h>
 
 /**
- * @brief Enregistre l'état du jeu dans un fichier.
+ * @brief Sauvegarde l'état actuel du jeu dans un fichier.
  *
- * Cette fonction sérialise l'état du jeu et l'écrit dans un fichier de sauvegarde.
- * Si le fichier n'existe pas, il est créé. Si l'ouverture échoue, un message d'erreur est affiché.
+ * Sérialise l'état du jeu et l'écrit dans un fichier nommé `savegame.dat`.
  *
- * @param state Pointeur vers l'état de jeu à enregistrer.
- * @return bool Indique si l'opération a réussi (0) ou échoué (1).
+ * @param state Un pointeur vers l'état de jeu à sauvegarder.
+ * @return bool `true` si la sauvegarde a réussi, `false` sinon.
  */
 bool save_game(const GameState* state);
 
 /**
- * @brief Vérifie si le fichier de sauvegarde existe.
+ * @brief Vérifie si un fichier de sauvegarde existe.
  *
- * Cette fonction tente d'ouvrir le fichier de sauvegarde en mode lecture.
- * Si le fichier existe, la fonction retourne vrai (1), sinon elle retourne faux (0).
+ * Ouvre le fichier `savegame.dat` en mode lecture pour vérifier son existence.
  *
- * @return bool Indique si le fichier de sauvegarde existe (1) ou non (0).
+ * @return bool `true` si le fichier existe, `false` sinon.
  */
 bool save_file_exists();
 
 /**
- * @brief Charge l'état du jeu à partir du fichier de sauvegarde.
+ * @brief Charge un état de jeu à partir d'un fichier de sauvegarde.
  *
- * Cette fonction lit l'état du jeu à partir d'un fichier nommé `savegame.dat`.
- * Si le fichier n'existe pas ou si l'ouverture échoue, un message d'erreur est affiché
- * et le programme se termine.
+ * Lit le fichier `savegame.dat`, désérialise son contenu et reconstruit l'état de jeu.
  *
  * @return GameState L'état de jeu chargé depuis le fichier.
- *
- * @warning Cette fonction doit être appelée uniquement si le fichier existe,
- *          sinon elle provoquera un crash.
+ * @warning Termine le programme avec `exit(EXIT_FAILURE)` en cas d'erreur de lecture ou d'allocation.
  */
 GameState load_game();
 

@@ -1,49 +1,43 @@
 
 #ifndef PIECE_H
 #define PIECE_H
+#include "player.h"
+#include <stdbool.h>
 
 /**
- * @brief Types de pièces pouvant se trouver sur une case de l'échiquier (ou None=rien).
+ * @brief Types de pièces pouvant se trouver sur une case de l'échiquier.
  */
 typedef enum {
-    None,    ///< Case vide
     King,    ///< Roi
     Queen,   ///< Reine
     Rook,    ///< Tour
     Bishop,  ///< Fou
     Knight,  ///< Cavalier
     Pawn,    ///< Pion
+} PieceKind;
+
+/**
+ * @brief Représente une pièce d’échecs sur le plateau.
+ *
+ * Cette structure contient le type de la pièce (Roi, Reine, etc.) et
+ * l'identifiant du joueur auquel elle appartient (Joueur humain ou IA).
+ */
+typedef struct {
+    PieceKind kind; ///< Type de la pièce
+    Player player; ///< Joueur auquel appartient la pièce
 } ChessPiece;
 
+typedef struct {
+    bool some;
+    ChessPiece value;
+} OptionChessPiece;
 
-/**
- * @brief Convertit une chaîne de caractères en type de pièce d’échecs (`ChessPiece`).
- *
- * Cette fonction analyse une chaîne (ex. `"King"`, `"Queen"`, etc.) et retourne
- * la valeur correspondante de l'énumération `ChessPiece`.
- *
- * La chaîne `"None"` est également prise en charge.
- *
- * Si la chaîne ne correspond à aucune pièce valide, la fonction imprime une erreur
- * et termine le programme avec `exit(EXIT_FAILURE)`.
- *
- * @param piece_str Une chaîne sans espaces représentant une pièce d’échecs.
- * @return ChessPiece La pièce correspondante.
- *
- * @warning Quitte le programme si la chaîne est invalide.
- */
-ChessPiece deserialize_piece(const char* piece_str);
+OptionChessPiece no_chess_piece();
+OptionChessPiece some_chess_piece(int v);
 
-/**
- * @brief Convertit une chaîne de caractères en type de pièce d’échecs (`ChessPiece`), avec valeur par défaut.
- * VOIR `deserialize_piece` pour la version stricte.
- *
- * Cette fonction retourne la pièce correspondante à une chaîne (ex. `"King"`, `"Queen"`, etc.).
- * Si la chaîne ne correspond à aucune pièce connue, elle retourne `None` sans interrompre le programme.
- *
- * @param piece_str Une chaîne sans espaces représentant une pièce d’échecs.
- * @return ChessPiece La pièce correspondante, ou `None` si la chaîne est invalide.
- */
-ChessPiece piece_from_string(const char* piece_str);
+
+OptionChessPiece deserialize_piece(const char* piece_str, const char* player_str, bool from_user_input);
+
+PieceKind piece_kind_from_string(const char* piece_kind_str);
 
 #endif //PIECE_H

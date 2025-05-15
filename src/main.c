@@ -60,6 +60,8 @@ void test() {
     exit(0);
 }
 
+// questions pour le prof
+// est-ce que les deux joueurs sont humains ou bien l'un est un bot ?
 int main(void) {
     srand(time(0));
     print_effect("=== Bienvenue dans le jeu ===  ", 50);
@@ -75,7 +77,7 @@ int main(void) {
     //
     // erase_effect("\n=== Appuyez sur une touche pour continuer ===  ", 25);
 
-    const Option option = select_option();
+    const StartOption option = select_option();
     clear_screen();
 
     GameState game_state;
@@ -96,6 +98,7 @@ int main(void) {
         case Restart: {
             if (!save_file_exists()) {
                 print_effect("Aucune partie sauvegardée trouvée.\n", 50);
+                free_game_state(&game_state);
                 return 0;
             }
 
@@ -106,6 +109,7 @@ int main(void) {
         }
         case Leave:
             printf("Bye\n");
+            free_game_state(&game_state);
             return 0;
         default:
             // unreachable
@@ -114,34 +118,66 @@ int main(void) {
 
     printf("Game state initialized\n");
 
-    printf("Au tour de %s\n", get_user_turn_name(&game_state));
+    if (get_user_turn_name(&game_state) == User) {
+        printf("Vous êtes les blancs!\n");
+    } else {
+        printf("Vous êtes les noirs!\n");
+    }
 
-    switch (game_state.mode) {
-        case Conquest: {
-            char nom_piece[10];
-            printf("Quelle pièce souhaitez-vous jouer ? ");
-            scanf("%s", nom_piece);
+    bool game_over = false;
 
-            ChessPiece piece = piece_from_string(nom_piece);
+    while (!game_over) {
+        RoundOption round_option = select_round_option();
 
-            while (piece == None) {
-                printf("Pièce invalide: ");
-                scanf("%s", nom_piece);
-                piece = piece_from_string(nom_piece);
+        switch (round_option) {
+            case Play: {
+                printf("Vous avez choisi de jouer.\n");
+
+                switch (game_state.mode) {
+                    case Conquest: {
+                        char nom_piece[10];
+                        printf("Quelle pièce souhaitez-vous jouer ? ");
+                        scanf("%s", nom_piece);
+
+                        const char* current_player_str = stringify_player(game_state.is_turn_of);
+                        OptionChessPiece option_piece = deserialize_piece(nom_piece, current_player_str, true);
+
+                        while (!option_piece.some) {
+                            printf("Pièce invalide: ");
+                            scanf("%s", nom_piece);
+                            option_piece = deserialize_piece(nom_piece, current_player_str, true);
+                        }
+
+                        printf("Où souhaitez-vous la placer ? ");
+
+
+                        break;
+                    }
+                    case Connect: {
+
+                        break;
+                    }
+                    default:
+                        // unreachable
+                        return 1;
+                }
+                break;
             }
+            case GiveUp: {
+                printf("Le joueur %s abandonne la partie. Partie terminée!\n", get_user_turn_name(&game_state));
+                game_over = true;
+                break;
+            }
+            case SaveGame: {
+                const bool result = save_game(&game_state);
 
-            printf("Où souhaitez-vous la placer ? ");
+                if (result) {
+                    printf("Une erreur est survenue, nous n'avons pas pu sauvegarder la partie\n");
+                }
 
-
-            break;
+                break;
+            }
         }
-        case Connect: {
-
-            break;
-        }
-        default:
-            // unreachable
-            return 1;
     }
 
     free_game_state(&game_state);

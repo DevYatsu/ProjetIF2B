@@ -20,13 +20,13 @@ void toggle_user_turn(GameState* state) {
 }
 
 char* get_user_turn_name(const GameState* state) {
-    return state->is_turn_of == User ? "User" : "AI";
+    return stringify_player(state->is_turn_of);
 }
 
 void debug_game_state(const GameState* state) {
     printf("GameState:\n");
     printf("  Mode: %s\n", state->mode == Conquest ? "Conquest" : "Connect");
-    printf("  Player: %s\n", state->is_turn_of == User ? "User" : "AI");
+    printf("  Player: %s\n", stringify_player(state->is_turn_of));
     printf("  Board:\n");
 
     if (state->board.tiles == NULL) {
@@ -38,7 +38,8 @@ void debug_game_state(const GameState* state) {
 
     for (uint8_t i = 0; i < state->board.dim; i++) {
         for (uint8_t j = 0; j < state->board.dim; j++) {
-            printf(" %d ", state->board.tiles[i][j].piece);
+            const OptionChessPiece piece = state->board.tiles[i][j].piece;
+            printf(" %d ", piece.some ? piece.value.kind : -1);
         }
         printf("\n");
     }

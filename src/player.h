@@ -13,6 +13,17 @@ typedef  enum {
     AI    ///< Intelligence artificielle
 } Player;
 
+
+/**
+ * @brief Converts a `Player` enum value to its string representation.
+ *
+ * This function returns "User" for the `User` player and "AI" for the `AI` player.
+ *
+ * @param player The `Player` enum value to convert.
+ * @return A string representing the player ("User" or "AI").
+ */
+char* stringify_player(Player player);
+
 /**
  * @brief Génère aléatoirement un identifiant de joueur.
  *

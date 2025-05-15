@@ -8,7 +8,11 @@ typedef uint8_t __uint8_t;
 
 typedef enum {
     Start = 1, Restart, Leave
-} Option;
+} StartOption;
+
+typedef enum {
+    Play = 1, GiveUp, SaveGame
+} RoundOption;
 
 /**
  * @brief Affiche un menu et lit une option utilisateur comprise entre 1 et 3.
@@ -20,11 +24,13 @@ typedef enum {
  *
  * Elle lit l'entrée de l'utilisateur depuis le terminal,
  * vérifie que la valeur est comprise entre 1 et 3,
- * et renvoie ce choix sous forme de l'enum Option.
+ * et renvoie ce choix sous forme de l'enum StartOption.
  *
- * @return Option Le choix de l'utilisateur.
+ * @return StartOption Le choix de l'utilisateur.
  */
-Option select_option();
+StartOption select_option();
+
+RoundOption select_round_option();
 
 /**
  * @brief Demande à l'utilisateur de choisir un mode de jeu.
