@@ -114,8 +114,6 @@ int main(void) {
     clear_screen();
     sleep_ms(200);
 
-    print_board(&game_state);
-
     bool game_over = false;
 
     while (!game_over) {
@@ -125,6 +123,8 @@ int main(void) {
             case Play: {
                 printf("Vous avez choisi de jouer.\n");
 
+                print_board(&game_state);
+                
                 switch (game_state.mode) {
                     case Conquest: {
                         char nom_piece[10];
@@ -140,24 +140,55 @@ int main(void) {
                             option_piece = deserialize_piece(nom_piece, current_player_str, true);
                         }
 
-                        char target_tile[4];
-                        printf("Où souhaitez-vous la placer ? ");
-                        scanf("%3s", target_tile);
-
                         const uint8_t dim = game_state.board.dim;
-                        uint8_t x = toupper(target_tile[0]) - 'A';
-                        uint8_t y = dim - atoi(target_tile + 1);
+                        uint8_t x = dim;
+                        uint8_t y = dim;
 
-                        while (x < 0 || x >= dim || y < 0 || y >= dim) {
-                            printf("Coordonnées invalides: %s\n", target_tile);
+                        while (x >= dim || y >= dim) {
+                            char target_tile[4];
                             printf("Où souhaitez-vous la placer ? ");
-                            scanf("%2s", target_tile);
+                            scanf("%3s", target_tile);
+
+                            if (!isupper(target_tile[0])) {
+                                printf("Erreur : le premier caractère doit être une lettre (ex: A3).\n");
+                                continue;
+                            }
+
+                            if (!isdigit(target_tile[1])) {
+                                printf("Erreur : la ligne doit commencer par un chiffre (ex: A3).\n");
+                                continue;
+                            }
+
+                            if (target_tile[2] != '\0' && !isdigit(target_tile[2])) {
+                                printf("Erreur : mauvais format (ex: A3 ou A10).\n");
+                                continue;
+                            }
+
+                            const int row = (target_tile[2] == '\0')
+                                        ? (target_tile[1] - '0')
+                                        : ((target_tile[1] - '0') * 10 + (target_tile[2] - '0'));
+
+                            if (row < 0 || row > dim) {
+                                printf("Erreur : ligne invalide (max %u).\n", dim);
+                                continue;
+                            }
 
                             x = toupper(target_tile[0]) - 'A';
-                            y = dim - atoi(target_tile + 1);
+                            y = dim - row;
+
+                            if (x >= dim || y >= dim) {
+                                printf("Erreur : coordonnées hors des limites (%ux%u).\n", dim, dim);
+                                continue;
+                            }
+
+                            if (game_state.board.tiles[y][x].piece.some) {
+                                printf("Erreur : Il y a déjà une pièce en %s.\n", target_tile);
+                                x = y = dim;
+                            }
                         }
 
-                        printf("Vous avez sélectionné la case ligne %d, colonne %d\n", x, y);
+                        game_state.board.tiles[y][x] = init_tile(option_piece);
+
                         break;
                     }
                     case Connect: {

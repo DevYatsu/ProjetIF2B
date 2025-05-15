@@ -190,7 +190,7 @@ GameState deserialize(const char* str) {
 
             // TODO!: verifier que deserialize_piece n'a aucun soucis
             const OptionChessPiece piece = deserialize_piece(piece_str, user_str, true);
-            board.tiles[i][j] = init_tile(piece, i, j);
+            board.tiles[i][j] = init_tile(piece);
         }
     }
 

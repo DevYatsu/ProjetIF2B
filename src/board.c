@@ -30,15 +30,15 @@ Board init_board(const uint8_t dim) {
     // Initialisation des cases du plateau
     for (uint8_t x = 0; x < dim; ++x) {
         for (uint8_t y = 0; y < dim; ++y) {
-            board.tiles[x][y] = init_tile(no_chess_piece(), x, y);
+            board.tiles[x][y] = init_tile(no_chess_piece());
         }
     }
 
     return board;
 }
 
-Tile init_tile(const OptionChessPiece piece, const uint8_t x, const uint8_t y) {
-    const Tile tile = {piece, x, y};
+Tile init_tile(const OptionChessPiece piece) {
+    const Tile tile = {piece};
     return tile;
 }
 

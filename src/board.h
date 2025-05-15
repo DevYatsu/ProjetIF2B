@@ -9,8 +9,6 @@
  */
 typedef struct {
     OptionChessPiece piece; ///< La pièce d'échecs sur la tuile (ou aucune)
-    uint8_t x;      ///< Coordonnée horizontale (colonne)
-    uint8_t y;      ///< Coordonnée verticale (ligne)
 } Tile;
 
 /**
@@ -38,11 +36,9 @@ Board init_board(uint8_t dim);
  * et la positionne aux coordonnées (x, y) sur le plateau.
  *
  * @param piece Une option de la pièce à placer sur la tuile (Roi, Reine, etc.).
- * @param x La coordonnée horizontale de la tuile (colonne).
- * @param y La coordonnée verticale de la tuile (ligne).
  * @return Tile La tuile initialisée avec les valeurs spécifiées.
  */
-Tile init_tile(OptionChessPiece piece, uint8_t x, uint8_t y);
+Tile init_tile(OptionChessPiece piece);
 
 /**
  * @brief Libère la mémoire allouée dynamiquement pour un plateau.
