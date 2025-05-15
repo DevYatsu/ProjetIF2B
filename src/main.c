@@ -215,6 +215,8 @@ int main(void) {
                         // unreachable
                         return 1;
                 }
+
+                game_state.is_turn_of = (game_state.is_turn_of == User) ? Opponent : User;
                 break;
             }
             case GiveUp: {
