@@ -1,4 +1,6 @@
 #include "select.h"
+
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "game_state.h"
@@ -23,17 +25,16 @@ StartOption select_option() {
 }
 
 RoundOption select_round_option() {
-    int option;
-
     print_text("Choisissez une option:\n\t1. Poser une pièce\n\t2. Abandonner\n\t3. Sauvegarder la partie\n");
     print_text("Votre choix : ");
     // voir https://forums.codeguru.com/showthread.php?329329-When-I-input-chars-in-a-scanf
     // scanf returns the number of items successfully read
-    if (!scanf("%d", &option)) option = 0;
+
+    int option = getchar() - '0';
 
     while (option < 1 || option > 3) {
-        print_text("Choix invalide: ");
-        if (!scanf("%d", &option)) option = 0;
+        if (!isspace(option)) print_text("Choix invalide: ");
+        option = getchar() - '0';
     }
 
     return (RoundOption)(option);
