@@ -9,10 +9,11 @@ AsciiPiece piece_as_white_ascii(const PieceKind kind) {
         case King: return (AsciiPiece){ .line1 = " \\+/ ", .line2 = " ) ( ", .line3 = line_bottom };
         case Queen: return (AsciiPiece){ .line1 = " \\^/ ", .line2 = " ) ( ", .line3 = line_bottom };
         case Rook: return (AsciiPiece){ .line1 = " (V) ", .line2 = " ) ( ", .line3 = line_bottom };
-        case Bishop: return (AsciiPiece){ .line1 = " (\"\\ ", .line2 = " (#) ", .line3 = line_bottom };
-        case Knight: return (AsciiPiece){ .line1 = " [-] ", .line2 = " (#/)  ", .line3 = line_bottom };
-        case Pawn: return (AsciiPiece){ .line1 = "  _  ", .line2 = " |##|  ", .line3 = line_bottom };
-        default: return (AsciiPiece){ .line1 = "  ?  ", .line2 = "  ???  ", .line3 = "?????" };
+        case Bishop: return (AsciiPiece){ .line1 = " (\"\\ ", .line2 = " ) ' ", .line3 = line_bottom };
+        case Knight: return (AsciiPiece){ .line1 = " [-] ", .line2 = " | | ", .line3 = line_bottom };
+        case Pawn: return (AsciiPiece){ .line1 = "  _  ", .line2 = " |#| ", .line3 = line_bottom };
+        default: // unreachable
+            return (AsciiPiece){ .line1 = "  ?  ", .line2 = "  ???  ", .line3 = "?????" };
     }
 }
 
@@ -25,7 +26,8 @@ AsciiPiece piece_as_black_ascii(const PieceKind kind) {
         case Bishop: return (AsciiPiece){ .line1 = " (\"\\ ", .line2 = " )#' ", .line3 = line_bottom };
         case Knight: return (AsciiPiece){ .line1 = " [-] ", .line2 = " |#| ", .line3 = line_bottom };
         case Pawn: return (AsciiPiece){ .line1 = "  _  ", .line2 = " (#) ", .line3 = line_bottom };
-        default: return (AsciiPiece){ .line1 = "  ?  ", .line2 = " ?B? ", .line3 = "?????" };
+        default: // unreachable
+            return (AsciiPiece){ .line1 = "  ?  ", .line2 = " ?B? ", .line3 = "?????" };
     }
 }
 
