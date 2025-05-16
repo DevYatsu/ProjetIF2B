@@ -117,7 +117,10 @@ int main(void) {
     bool game_over = false;
 
     while (!game_over) {
-        // TODO! afficher le joueur à qui c'est le tour en gros
+        // pour centrer le titre
+        for (int i = 0; i < game_state.board.dim / 2 + 1; i++) { printf("   ");}
+        printf("Au tour du joueur %d\n", game_state.is_turn_of == User ? 1 : 2);
+
         print_board(&game_state);
 
         const RoundOption round_option = select_round_option();

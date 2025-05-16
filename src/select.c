@@ -4,6 +4,7 @@
 #include "game_state.h"
 #include "print.h"
 
+// TODO regler le probleme des scanf et parser manuellement le chiffre
 StartOption select_option() {
     int option;
 
