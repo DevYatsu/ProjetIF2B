@@ -4,6 +4,8 @@
 #include "piece.h"
 
 AsciiPiece piece_as_white_ascii(const PieceKind kind) {
+    // cf https://ascii.co.uk/art/chess
+
     const char* line_bottom = "/___\\";
     switch (kind) {
         case King: return (AsciiPiece){ .line1 = " \\+/ ", .line2 = " ) ( ", .line3 = line_bottom };
@@ -18,6 +20,8 @@ AsciiPiece piece_as_white_ascii(const PieceKind kind) {
 }
 
 AsciiPiece piece_as_black_ascii(const PieceKind kind) {
+    // cf https://ascii.co.uk/art/chess
+
     const char* line_bottom = "/###\\";
     switch (kind) {
         case King: return (AsciiPiece){ .line1 = " \\+/ ", .line2 = " )#( ", .line3 = line_bottom };
