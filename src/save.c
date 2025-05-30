@@ -164,7 +164,7 @@ GameState deserialize(const char* str) {
     }
 
     char piece_str[10];
-    char user_str[10];
+    char user_str[11];
 
     for (uint8_t i = 0; i < board.dim; i++) {
         for (uint8_t j = 0; j < board.dim; j++) {

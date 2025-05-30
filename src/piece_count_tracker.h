@@ -50,4 +50,5 @@ PieceCountTracker init_piece_counter();
  */
 bool add_piece(PieceCountTracker* counter, const PieceKind piece);
 
+bool has_no_pieces_left(const PieceCountTracker* counter);
 #endif //PIECE_COUNTER_H

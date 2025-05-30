@@ -54,5 +54,10 @@ bool add_piece(PieceCountTracker* counter, const PieceKind piece) {
     return false;
 }
 
+bool has_no_pieces_left(const PieceCountTracker* counter) {
+    return counter->pawns == 0 && counter->knights == 0 && counter->bishops == 0 &&
+           counter->rooks == 0 && counter->queen == 0 && counter->king == 0;
+}
+
 
 

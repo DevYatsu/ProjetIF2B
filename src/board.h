@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include "piece.h"
 
-// TODO simplifier Tiles car un seul champs
 /**
  * @brief Représente une case du plateau avec une pièce et ses coordonnées.
  */

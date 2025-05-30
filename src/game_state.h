@@ -43,6 +43,7 @@ GameState init_game_state(GameMode mode, uint8_t dim);
 void toggle_user_turn(GameState* state);
 
 char* get_user_turn_name(const GameState* state);
+const PieceCountTracker* get_user_turn_count_tracker(const GameState* state);
 
 void print_board(const GameState *state);
 

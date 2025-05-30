@@ -23,6 +23,10 @@ void toggle_user_turn(GameState* state) {
 char* get_user_turn_name(const GameState* state) {
     return stringify_player(state->is_turn_of);
 }
+const PieceCountTracker* get_user_turn_count_tracker(const GameState* state) {
+    return (state->is_turn_of == User) ? &state->piece_counter_1 : &state->piece_counter_2;
+}
+
 
 void debug_game_state(const GameState* state) {
     printf("GameState:\n");
