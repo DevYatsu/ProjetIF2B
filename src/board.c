@@ -44,41 +44,53 @@ void free_board(const Board *board) {
     free(board->tiles);         // Puis le tableau de pointeurs
 }
 
-Tile empty_tile()   { return (Tile){ .some = false }; }
-Tile tile_with_piece(const ChessPiece piece) { return (Tile){ .some = true, .value = piece }; }
+Tile empty_tile()   { return (Tile){ .some = false, .captured_by = no_player() }; }
+Tile tile_with_piece(const ChessPiece piece) { return (Tile){ .some = true, .value = piece, .captured_by = no_player() }; }
 
-Tile deserialize_piece(const char* piece_str, const char* player_str, const bool from_user_input) {
-    ChessPiece piece;
-    Player player;
+Tile deserialize_tile(const char* piece_str, const char* player_str, const char* captured_by_str, const bool from_user_input) {
+    PieceKind kind;
+    PlayerOption player_opt;
+    player_opt.some = true;
+
+    if (strcmp(captured_by_str, "User") == 0) {
+         player_opt.player = User;
+    } else if (strcmp(captured_by_str, "Opponent") == 0) {
+        player_opt.player = Opponent;
+    } else {
+        player_opt = no_player();
+    }
 
     if (strcmp(piece_str, "King") == 0 || strcmp(piece_str, "Roi") == 0) {
-        piece.kind = King;
+        kind = King;
     } else if (strcmp(piece_str, "Queen") == 0 || strcmp(piece_str, "Reine") == 0) {
-        piece.kind = Queen;
+        kind = Queen;
     } else if (strcmp(piece_str, "Rook") == 0 || strcmp(piece_str, "Tour") == 0) {
-        piece.kind = Rook;
+        kind = Rook;
     } else if (strcmp(piece_str, "Bishop") == 0 || strcmp(piece_str, "Fou") == 0) {
-        piece.kind = Bishop;
+        kind = Bishop;
     } else if (strcmp(piece_str, "Knight") == 0 || strcmp(piece_str, "Cavalier") == 0) {
-        piece.kind = Knight;
+        kind = Knight;
     } else if (strcmp(piece_str, "Pawn") == 0 || strcmp(piece_str, "Pion") == 0) {
-        piece.kind = Pawn;
+        kind = Pawn;
     } else if (strcmp(piece_str, "None") == 0 || from_user_input) {
-        return (Tile){.some = false };
+        return (Tile){.some = false, .captured_by = player_opt };
     } else {
         printf("Invalid piece string: %s\n", piece_str);
         exit(EXIT_FAILURE);
     }
 
+    Player piece_player;
+
     if (strcmp(player_str, "User") == 0) {
-        player = User;
+        piece_player = User;
     } else if (strcmp(player_str, "Opponent") == 0) {
-        player = Opponent;
+        piece_player = Opponent;
     } else {
         printf("Invalid player string: %s\n", player_str);
         exit(EXIT_FAILURE);
     }
 
-    piece.player = player;
-    return (Tile){.some = true, .value = piece};
+    const ChessPiece value = {.kind = kind, .player = piece_player};
+
+    return (Tile){.some = true, .value = value, .captured_by = player_opt};
 }

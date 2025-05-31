@@ -13,6 +13,7 @@
 typedef struct {
     bool some;
     ChessPiece value;
+    PlayerOption captured_by;
 } Tile;
 
 /**
@@ -56,17 +57,19 @@ Tile empty_tile();
 Tile tile_with_piece(ChessPiece piece);
 
 /**
- * @brief Désérialise une chaîne de caractères en une tuile avec une pièce.
+ * @brief Désérialise une chaîne de caractères en une tuile.
  *
- * Cette fonction convertit une représentation textuelle d'une pièce et de son joueur
- * en une tuile contenant la pièce correspondante.
+ * Cette fonction prend une représentation textuelle d'une pièce et la convertit
+ * en une structure `Tile`. Elle gère les cas où la tuile est vide ou contient
+ * une pièce spécifique, ainsi que le joueur qui a capturé la pièce.
  *
- * @param piece_str Chaîne représentant le type de la pièce (ex: "King", "Queen", etc.).
- * @param player_str Chaîne représentant le joueur auquel appartient la pièce (ex: "User", "AI").
- * @param from_user_input Indique si la désérialisation provient d'une entrée utilisateur, dans quel cas on ne renvoie pas d'erreur arrêtant le programme.
- * @return Tile La tuile contenant la pièce désérialisée.
+ * @param piece_str Chaîne représentant le type de pièce (ex: "Pawn").
+ * @param player_str Chaîne représentant le joueur (ex: "User").
+ * @param captured_by_str Chaîne représentant le joueur qui a capturé la pièce (ex: "Opponent").
+ * @param from_user_input Indique si l'entrée provient de l'utilisateur (pour des messages d'erreur).
+ * @return Tile La tuile désérialisée.
  */
-Tile deserialize_piece(const char* piece_str, const char* player_str, bool from_user_input);
+Tile deserialize_tile(const char* piece_str, const char* player_str, const char* captured_by_str, bool from_user_input);
 
 
 #endif //BOARD_H

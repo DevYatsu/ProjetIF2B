@@ -48,13 +48,12 @@ char* serialize(const GameState* state) {
         for (uint8_t j = 0; j < state->board.dim; j++) {
             strcat(str, " ");
             const Tile tile = state->board.tiles[i][j];
-            if (!tile.some) {
-                strcat(str, "_");
-            } else {
-                strcat(str, stringify_piece(tile.value.kind));
-                strcat(str, ":");
-                strcat(str, stringify_player(tile.value.player));
-            }
+
+            strcat(str, tile.some ? stringify_piece(tile.value.kind) : "_");
+            strcat(str, ":");
+            strcat(str, tile.some ? stringify_player(tile.value.player) : "_");
+            strcat(str, ":");
+            strcat(str, tile.captured_by.some ? stringify_player_option(tile.captured_by) : "_");
         }
     }
 
@@ -124,7 +123,7 @@ static bool string_to_player(const char* player_str, Player* player) {
 // Helper function to parse tiles from string
 static DeserializeResult parse_tiles(const char* tiles_str, GameState* state, uint8_t dim) {
     const char* current = tiles_str;
-    char piece_buf[32];
+    char tile_buffer[32];
 
     for (uint8_t i = 0; i < dim; i++) {
         for (uint8_t j = 0; j < dim; j++) {
@@ -134,27 +133,22 @@ static DeserializeResult parse_tiles(const char* tiles_str, GameState* state, ui
             // Read piece token
             int k = 0;
             while (*current && *current != ' ' && *current != '\t' &&
-                   *current != '\n' && k < sizeof(piece_buf) - 1) {
-                piece_buf[k++] = *current++;
+                   *current != '\n' && k < sizeof(tile_buffer) - 1) {
+                tile_buffer[k++] = *current++;
             }
-            piece_buf[k] = '\0';
+            tile_buffer[k] = '\0';
 
-            // Parse piece
-            if (strcmp(piece_buf, "_") == 0) {
-                state->board.tiles[i][j] = empty_tile();
-            } else {
-                char* separator = strchr(piece_buf, ':');
-                if (!separator) {
-                    return DESERIALIZE_INVALID_FORMAT;
-                }
+            // Découper tile_buf en 3 parties : piece, owner, captured
+            char* piece_str = strtok(tile_buffer, ":");
+            char* owner_str = strtok(NULL, ":");
+            char* captured_str = strtok(NULL, ":");
 
-                *separator = '\0';
-                char* piece_str = piece_buf;
-                char* player_str = separator + 1;
-
-                Tile tile = deserialize_piece(piece_str, player_str, true);
-                state->board.tiles[i][j] = tile;
+            if (!piece_str || !owner_str || !captured_str) {
+                return DESERIALIZE_INVALID_FORMAT;
             }
+
+            const Tile tile = deserialize_tile(piece_str, owner_str, captured_str, true);
+            state->board.tiles[i][j] = tile;
         }
     }
 

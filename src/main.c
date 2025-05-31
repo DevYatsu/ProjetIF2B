@@ -143,7 +143,7 @@ int main(void) {
                             scanf("%9s", nom_piece);
 
                             const char* current_player_str = stringify_player(game_state.is_turn_of);
-                            Tile tile = deserialize_piece(nom_piece, current_player_str, true);
+                            Tile tile = deserialize_tile(nom_piece, current_player_str, "", true);
 
                             PieceCountTracker *piece_counter = (game_state.is_turn_of == User)
                                 ? &game_state.piece_counter_1
@@ -159,7 +159,7 @@ int main(void) {
                                     printf("Pièce inconnue: ");
                                 }
                                 scanf("%9s", nom_piece);
-                                tile = deserialize_piece(nom_piece, current_player_str, true);
+                                tile = deserialize_tile(nom_piece, current_player_str, "", true);
 
                                 if (tile.some) {
                                     piece_allowed = add_piece(piece_counter, tile.value.kind);
