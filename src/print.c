@@ -1,5 +1,6 @@
 #include "print.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 void print_effect(const char* str, const unsigned int delay_ms) {
     for (const char* c = str; *c != '\0'; ++c) {
@@ -13,15 +14,13 @@ void print_text(const char* str) {
     print_effect(str, 15);
 }
 
-void erase_effect(const char* str, const unsigned int delay_ms) {
-    for (int i = 0; str[i]; ++i) {
-        printf("\b \b");
-        fflush(stdout);
-        sleep_ms(delay_ms);
-    }
-}
-
-#include <stdlib.h>
+// void erase_effect(const char* str, const unsigned int delay_ms) {
+//     for (int i = 0; str[i]; ++i) {
+//         printf("\b \b");
+//         fflush(stdout);
+//         sleep_ms(delay_ms);
+//     }
+// }
 
 void clear_screen() {
     #ifdef _WIN32
@@ -29,7 +28,5 @@ void clear_screen() {
     #else
         system("clear");
     #endif
-
     //     system("@cls||clear");
 }
-

@@ -35,42 +35,6 @@ AsciiPiece piece_as_black_ascii(const PieceKind kind) {
     }
 }
 
-OptionChessPiece deserialize_piece(const char* piece_str, const char* player_str, const bool from_user_input) {
-    ChessPiece piece;
-    Player player;
-
-    if (strcmp(piece_str, "King") == 0 || strcmp(piece_str, "Roi") == 0) {
-        piece.kind = King;
-    } else if (strcmp(piece_str, "Queen") == 0 || strcmp(piece_str, "Reine") == 0) {
-        piece.kind = Queen;
-    } else if (strcmp(piece_str, "Rook") == 0 || strcmp(piece_str, "Tour") == 0) {
-        piece.kind = Rook;
-    } else if (strcmp(piece_str, "Bishop") == 0 || strcmp(piece_str, "Fou") == 0) {
-        piece.kind = Bishop;
-    } else if (strcmp(piece_str, "Knight") == 0 || strcmp(piece_str, "Cavalier") == 0) {
-        piece.kind = Knight;
-    } else if (strcmp(piece_str, "Pawn") == 0 || strcmp(piece_str, "Pion") == 0) {
-        piece.kind = Pawn;
-    } else if (strcmp(piece_str, "None") == 0 || from_user_input) {
-        return (OptionChessPiece){.some = false };
-    } else {
-        printf("Invalid piece string: %s\n", piece_str);
-        exit(EXIT_FAILURE);
-    }
-
-    if (strcmp(player_str, "User") == 0) {
-        player = User;
-    } else if (strcmp(player_str, "Opponent") == 0) {
-        player = Opponent;
-    } else {
-        printf("Invalid player string: %s\n", player_str);
-        exit(EXIT_FAILURE);
-    }
-
-    piece.player = player;
-    return (OptionChessPiece){.some = true, .value = piece};
-}
-
 PieceKind piece_kind_from_string(const char* piece_kind_str) {
     PieceKind piece_kind;
 
@@ -94,5 +58,15 @@ PieceKind piece_kind_from_string(const char* piece_kind_str) {
     return piece_kind;
 }
 
-OptionChessPiece no_chess_piece()   { return (OptionChessPiece){ .some = false }; }
-OptionChessPiece some_chess_piece(const int v) { return (OptionChessPiece){ .some = true, .value = v }; }
+const char* stringify_piece(const PieceKind kind) {
+    switch (kind) {
+        case King:   return "King";
+        case Queen:  return "Queen";
+        case Rook:   return "Rook";
+        case Bishop: return "Bishop";
+        case Knight: return "Knight";
+        case Pawn:   return "Pawn";
+        default:
+            return "Unknown";
+    }
+}

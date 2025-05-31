@@ -28,6 +28,14 @@ const PieceCountTracker* get_user_turn_count_tracker(const GameState* state) {
 }
 
 
+/**
+ * @brief Affiche dans la console un résumé de l'état de jeu.
+ *
+ * Inclut les informations sur le mode de jeu, le joueur actif,
+ * et le contenu du plateau avec les identifiants des pièces.
+ *
+ * @param state Pointeur vers l'état de jeu à inspecter.
+ */
 void debug_game_state(const GameState* state) {
     printf("GameState:\n");
     printf("  Mode: %s\n", state->mode == Conquest ? "Conquest" : "Connect");
@@ -35,7 +43,7 @@ void debug_game_state(const GameState* state) {
     printf("  Board:\n");
 
     if (state->board.tiles == NULL) {
-        printf("    Board is NULL\n");
+        printf("    L'échiquier est vide.\n");
         return;
     }
 
@@ -43,7 +51,7 @@ void debug_game_state(const GameState* state) {
 
     for (uint8_t i = 0; i < state->board.dim; i++) {
         for (uint8_t j = 0; j < state->board.dim; j++) {
-            const OptionChessPiece piece = state->board.tiles[i][j].piece;
+            const Tile piece = state->board.tiles[i][j];
             printf(" %d ", piece.some ? piece.value.kind : -1);
         }
         printf("\n");
@@ -72,7 +80,7 @@ void print_board(const GameState* state) {
 
 
             for (uint8_t j = 0; j < dim; j++) {
-                const OptionChessPiece piece = state->board.tiles[i][j].piece;
+                const Tile piece = state->board.tiles[i][j];
 
                 AsciiPiece p = { "·····", "·····", "·····" };
 
@@ -88,7 +96,7 @@ void print_board(const GameState* state) {
                     case 0: printf(" %s", p.line1); break;
                     case 1: printf(" %s", p.line2); break;
                     case 2: printf(" %s", p.line3); break;
-                    default: perror("should be unreachable");
+                    default: // unreachable
                         exit(EXIT_FAILURE);
                 }
             }

@@ -30,6 +30,20 @@ typedef enum {
  */
 StartOption select_option();
 
+/**
+ * @brief Affiche un menu et lit une option utilisateur comprise entre 1 et 3.
+ *
+ * Cette fonction présente un menu interactif à l'utilisateur avec trois options :
+ *   1. Poser une pièce
+ *   2. Abandonner
+ *   3. Sauvegarder la partie
+ *
+ * Elle lit l'entrée de l'utilisateur depuis le terminal,
+ * vérifie que la valeur est comprise entre 1 et 3,
+ * et renvoie ce choix sous forme de l'enum RoundOption.
+ *
+ * @return RoundOption Le choix de l'utilisateur.
+ */
 RoundOption select_round_option();
 
 /**

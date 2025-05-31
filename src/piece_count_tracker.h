@@ -5,6 +5,12 @@
 #include "piece.h"
 #include <stdbool.h>
 
+/**
+ * @brief Représente le compteur de pièces disponibles pour un joueur.
+ *
+ * Cette structure suit le nombre de chaque type de pièce qu'un joueur peut encore poser.
+ * Elle est utilisée pour s'assurer qu'un joueur ne pose pas plus de pièces qu'il n'en possède.
+ */
 typedef struct {
     uint8_t pawns;     // 8 max
     uint8_t knights;   // 2 max

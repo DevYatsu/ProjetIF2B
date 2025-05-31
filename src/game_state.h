@@ -35,20 +35,62 @@ typedef struct {
 } GameState;
 
 /**
- * Initialise un état de jeu complet avec le mode et la taille spécifiée.
- * Le joueur qui commence est choisi aléatoirement.
+ * @brief Initialise un état de jeu avec les paramètres spécifiés.
+ *
+ * Crée un plateau vide de dimension donnée, initialise les compteurs de pièces,
+ * et choisit aléatoirement quel joueur commence la partie.
+ *
+ * @param mode Le mode de jeu (par exemple Conquest ou Connect).
+ * @param dim La dimension du plateau (entre 6 et 12 typiquement).
+ * @return GameState L'état de jeu initialisé.
  */
 GameState init_game_state(GameMode mode, uint8_t dim);
 
+/**
+ * @brief Inverse le tour du joueur actif.
+ *
+ * Permet de passer du joueur actuel à l'autre (ex: de l'utilisateur à l'adversaire).
+ *
+ * @param state Pointeur vers l'état de jeu à modifier.
+ */
 void toggle_user_turn(GameState* state);
 
+/**
+ * @brief Renvoie le nom du joueur dont c'est le tour.
+ *
+ * Ce nom est retourné sous forme de chaîne de caractères.
+ *
+ * @param state Pointeur vers l'état de jeu.
+ * @return char* Le nom du joueur actuel ("User", "Opponent", etc.).
+ */
 char* get_user_turn_name(const GameState* state);
-const PieceCountTracker* get_user_turn_count_tracker(const GameState* state);
-
-void print_board(const GameState *state);
 
 /**
- * Libère la mémoire du plateau associée à l'état de jeu.
+ * @brief Renvoie le pointeur vers le compteur de pièces du joueur actuel.
+ *
+ * Utile pour suivre les pièces capturées ou en jeu selon le joueur actif.
+ *
+ * @param state Pointeur vers l'état de jeu.
+ * @return const PieceCountTracker* Le compteur associé au joueur actif.
+ */
+const PieceCountTracker* get_user_turn_count_tracker(const GameState* state);
+
+/**
+ * @brief Affiche le plateau de jeu en utilisant des représentations ASCII.
+ *
+ * Représente chaque pièce à l'aide d'un dessin ASCII, en distinguant les joueurs.
+ * Ajoute les coordonnées comme dans une vraie partie d'échecs (lettres et chiffres).
+ *
+ * @param state Pointeur vers l'état de jeu contenant le plateau.
+ */
+void print_board(const GameState* state);
+
+/**
+ * @brief Libère la mémoire allouée pour le plateau de jeu.
+ *
+ * À utiliser à la fin d'une partie pour éviter les fuites de mémoire.
+ *
+ * @param state Pointeur vers l'état de jeu à nettoyer.
  */
 void free_game_state(const GameState *state);
 

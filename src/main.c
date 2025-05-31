@@ -143,15 +143,15 @@ int main(void) {
                             scanf("%9s", nom_piece);
 
                             const char* current_player_str = stringify_player(game_state.is_turn_of);
-                            OptionChessPiece option_piece = deserialize_piece(nom_piece, current_player_str, true);
+                            Tile tile = deserialize_piece(nom_piece, current_player_str, true);
 
                             PieceCountTracker *piece_counter = (game_state.is_turn_of == User)
                                 ? &game_state.piece_counter_1
                                 : &game_state.piece_counter_2;
 
-                            bool piece_allowed = add_piece(piece_counter, option_piece.value.kind);
+                            bool piece_allowed = tile.some ? add_piece(piece_counter, tile.value.kind) : false;
 
-                            while (!option_piece.some || !piece_allowed) {
+                            while (!tile.some || !piece_allowed) {
                                 if (!piece_allowed) {
                                     printf("Vous n'avez plus de %s à jouer: ", nom_piece);
                                     piece_allowed = true;
@@ -159,10 +159,10 @@ int main(void) {
                                     printf("Pièce inconnue: ");
                                 }
                                 scanf("%9s", nom_piece);
-                                option_piece = deserialize_piece(nom_piece, current_player_str, true);
+                                tile = deserialize_piece(nom_piece, current_player_str, true);
 
-                                if (option_piece.some) {
-                                    piece_allowed = add_piece(piece_counter, option_piece.value.kind);
+                                if (tile.some) {
+                                    piece_allowed = add_piece(piece_counter, tile.value.kind);
                                 }
                             }
 
@@ -207,13 +207,13 @@ int main(void) {
                                     continue;
                                 }
 
-                                if (game_state.board.tiles[y][x].piece.some) {
+                                if (game_state.board.tiles[y][x].some) {
                                     printf("Erreur : Il y a déjà une pièce en %s.\n", target_tile);
                                     x = y = dim;
                                 }
                             }
 
-                            game_state.board.tiles[y][x] = init_tile(option_piece);
+                            game_state.board.tiles[y][x] = tile;
                             clear_screen();
                         }
                         break;
