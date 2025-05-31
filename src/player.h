@@ -52,8 +52,27 @@ PlayerOption player_option(Player player);
  */
 char* stringify_player(Player player);
 
+/**
+ * @brief Converts a `PlayerOption` to its string representation.
+ *
+ * If the option is present (`some` is true), it returns the string representation of the player.
+ * If the option is not present (`some` is false), it returns "_".
+ *
+ * @param player_opt The `PlayerOption` to convert.
+ * @return A string representing the player option.
+ */
 char* stringify_player_option(PlayerOption player_opt);
 
+/**
+ * @brief Parses a string to create a `PlayerOption`.
+ *
+ * This function checks the input string and returns a `PlayerOption` with `some` set to true
+ * if the string matches "User" or "Opponent". If the string does not match either, it returns
+ * an option with `some` set to false.
+ *
+ * @param str The input string to parse.
+ * @return PlayerOption The parsed player option.
+ */
 PlayerOption parse_player_option(const char* str);
 
 /**
