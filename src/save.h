@@ -24,12 +24,13 @@ bool save_game(const GameState* state);
 bool save_file_exists();
 
 /**
- * @brief Charge un état de jeu à partir d'un fichier de sauvegarde.
+ * @brief Charge l'état du jeu à partir du fichier de sauvegarde.
  *
- * Lit le fichier `savegame.dat`, désérialise son contenu et reconstruit l'état de jeu.
+ * Cette fonction lit le contenu du fichier `savegame.dat`, désérialise les données
+ * et retourne l'état du jeu correspondant. En cas d'erreur (fichier introuvable,
+ * lecture ou allocation mémoire échouée), le programme s'arrête avec un message d'erreur.
  *
- * @return GameState L'état de jeu chargé depuis le fichier.
- * @warning Termine le programme avec `exit(EXIT_FAILURE)` en cas d'erreur de lecture ou d'allocation.
+ * @return GameState L'état du jeu restauré depuis la sauvegarde.
  */
 GameState load_game();
 
