@@ -5,24 +5,37 @@
 #include "game_state.h"
 #include "print.h"
 
+/**
+ * @brief Demande et valide une entrée utilisateur dans une plage de caractères.
+ *
+ * Affiche une invite, lit un caractère depuis l'entrée standard et vérifie qu'il s'agit
+ * d'un chiffre compris entre range_start et range_end. Réaffiche l'invite tant qu'une
+ * entrée invalide est saisie.
+ *
+ * @param range_start Le caractère de début de la plage valide (inclus).
+ * @param range_end Le caractère de fin de la plage valide (inclus).
+ * @return char Le caractère validé choisi par l'utilisateur.
+ */
 char validate(const char range_start, const char range_end) {
-    char option_char[2];
-    int result = 0;
+    char option_char[2]; // Stocke le caractère saisi par l'utilisateur
+    int result = 0;      // Indique le nombre de champs lus correctement par scanf
 
     do {
         print_text("Votre choix : ");
         result = scanf("%1s", option_char);
 
-        // flush le reste de la ligne
         int ch;
+        // flush l'entrée (enlève les caractères entrés restants jusqu'à la fin de la ligne)
         while ((ch = getchar()) != '\n' && ch != EOF) {}
 
+        // Vérifie si l'entrée est valide
         if (!result || !isdigit(option_char[0]) || option_char[0] < range_start || option_char[0] > range_end) {
             print_text("Choix invalide.\n");
         }
 
     } while (!result || !isdigit(option_char[0]) || option_char[0] < range_start || option_char[0] > range_end);
 
+    // Retourne le numéro validé
     return option_char[0];
 }
 
