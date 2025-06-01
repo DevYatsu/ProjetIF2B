@@ -134,6 +134,7 @@ int main(void) {
                     case Conquest: {
                         char nom_piece[10];
                         printf("Quelle pièce souhaitez-vous jouer ? ");
+                        // TODO! supporter les pièces avec des majuscules/minuscules dans le nom
                         scanf("%9s", nom_piece);
 
                         const char* current_player_str = stringify_player(game_state.is_turn_of);
@@ -213,7 +214,6 @@ int main(void) {
                         game_state.board.tiles[y][x] = tile;
                         apply_conquest_capture(&game_state, x, y, tile.value, game_state.is_turn_of);
 
-                        clear_screen();
                         break;
                     }
                     case Connect: {
@@ -226,6 +226,7 @@ int main(void) {
                 }
 
                 game_state.is_turn_of = (game_state.is_turn_of == User) ? Opponent : User;
+                clear_screen();
                 break;
             }
             case GiveUp: {
@@ -253,6 +254,8 @@ int main(void) {
 
     const PieceCountTracker *current_tracker = get_user_turn_count_tracker(&game_state);
     if (has_no_pieces_left(current_tracker)) {
+        clear_screen();
+        sleep_ms(500);
         print_text("Toutes les pièces ont été jouées.\n");
         print_text("La partie est terminée!\n");
         const uint8_t user_count = get_captured_count_of(&game_state,User);

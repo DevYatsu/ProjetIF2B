@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "board.h"
+
+#include <ctype.h>
 #include <string.h>
 
 Board init_board(const uint8_t dim) {
@@ -60,22 +62,31 @@ Tile deserialize_tile(const char* piece_str, const char* player_str, const char*
         player_opt = no_player();
     }
 
-    if (strcmp(piece_str, "King") == 0 || strcmp(piece_str, "Roi") == 0) {
+    // Normaliser la chaîne de caractères pour la pièce
+    // ex: "King" -> "King", "queen" -> "Queen", "ROi" -> "Roi"
+    char piece[16];
+    piece[0] = toupper(piece_str[0]);
+    for (size_t i = 1; i < strlen(piece_str) && i < sizeof(piece) - 1; ++i) {
+        piece[i] = tolower(piece_str[i]);
+    }
+    piece[strlen(piece_str)] = '\0';
+
+    if (strcmp(piece, "King") == 0 || strcmp(piece, "Roi") == 0) {
         kind = King;
-    } else if (strcmp(piece_str, "Queen") == 0 || strcmp(piece_str, "Reine") == 0) {
+    } else if (strcmp(piece, "Queen") == 0 || strcmp(piece, "Reine") == 0 || strcmp(piece, "Dame") == 0) {
         kind = Queen;
-    } else if (strcmp(piece_str, "Rook") == 0 || strcmp(piece_str, "Tour") == 0) {
+    } else if (strcmp(piece, "Rook") == 0 || strcmp(piece, "Tour") == 0) {
         kind = Rook;
-    } else if (strcmp(piece_str, "Bishop") == 0 || strcmp(piece_str, "Fou") == 0) {
+    } else if (strcmp(piece, "Bishop") == 0 || strcmp(piece, "Fou") == 0) {
         kind = Bishop;
-    } else if (strcmp(piece_str, "Knight") == 0 || strcmp(piece_str, "Cavalier") == 0) {
+    } else if (strcmp(piece, "Knight") == 0 || strcmp(piece, "Cavalier") == 0) {
         kind = Knight;
-    } else if (strcmp(piece_str, "Pawn") == 0 || strcmp(piece_str, "Pion") == 0) {
+    } else if (strcmp(piece, "Pawn") == 0 || strcmp(piece, "Pion") == 0) {
         kind = Pawn;
-    } else if (strcmp(piece_str, "None") == 0 || from_user_input) {
+    } else if (strcmp(piece, "None") == 0 || from_user_input) {
         return (Tile){.some = false, .captured_by = player_opt };
     } else {
-        printf("Invalid piece string: %s\n", piece_str);
+        printf("Invalid piece string: %s\n", piece);
         exit(EXIT_FAILURE);
     }
 
