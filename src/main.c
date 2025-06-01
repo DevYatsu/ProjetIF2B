@@ -143,9 +143,9 @@ int main(void) {
   clear_screen();
   sleep_ms(200);
 
-  bool game_gave_up = false;
+  bool game_stopped = false;
 
-  while (!game_gave_up &&
+  while (!game_stopped &&
          !has_no_pieces_left(get_user_turn_count_tracker(&game_state))) {
     // pour centrer le titre
     for (int i = 0; i < game_state.board.dim / 2 + 1; i++) {
@@ -182,7 +182,7 @@ int main(void) {
     case GiveUp: {
       printf("Le joueur %s abandonne la partie. Partie terminée!\n",
              get_user_turn_name(&game_state));
-      game_gave_up = true;
+      game_stopped = true;
       break;
     }
     case SaveGame: {
@@ -197,11 +197,16 @@ int main(void) {
       sleep_ms(500);
       print_text("La partie a été sauvegardée avec succès.\n");
       sleep_ms(400);
-
-      clear_screen();
+      game_stopped = true;
       break;
     }
     }
+  }
+
+  if (game_stopped) {
+    clear_screen();
+    print_bye();
+    return 0;
   }
 
   const PieceCountTracker *current_tracker =
