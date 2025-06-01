@@ -12,6 +12,115 @@ GameState init_game_state(const GameMode mode, const uint8_t dim) {
     return state;
 }
 
+uint8_t get_captured_count_of(const GameState* state, const Player player) {
+    uint8_t count = 0;
+    for (uint8_t i = 0; i < state->board.dim; i++) {
+        for (uint8_t j = 0; j < state->board.dim; j++) {
+            const Tile tile = state->board.tiles[i][j];
+            if (tile.some && tile.captured_by.some && tile.captured_by.player == player) {
+                count++;
+            }
+        }
+    }
+
+    return count;
+}
+
+void apply_conquest_capture(GameState* state, uint8_t x, uint8_t y, ChessPiece piece, Player capturer) {
+    const uint8_t dim = state->board.dim;
+    Tile* center = &state->board.tiles[y][x];
+    // la case sur laquelle est la pièce est capturée
+    center->captured_by = player_option(capturer);
+
+    switch (piece.kind) {
+        case King: {
+            const int offsets[8][2] = {
+                {-1, 0}, {1, 0}, {0, -1}, {0, 1},
+                {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
+            };
+            for (int i = 0; i < 8; i++) {
+                int nx = x + offsets[i][0];
+                int ny = y + offsets[i][1];
+                if (nx < dim && ny < dim) {
+                    Tile* t = &state->board.tiles[ny][nx];
+                    if (!t->some || t->value.player == capturer)
+                        t->captured_by = player_option(capturer);
+                }
+            }
+            break;
+        }
+
+        case Queen:
+        case Rook:
+        case Bishop: {
+            const int directions[8][2] = {
+                {-1, 0}, {1, 0}, {0, -1}, {0, 1},     // rook
+                {-1, -1}, {-1, 1}, {1, -1}, {1, 1}    // bishop
+            };
+
+            for (int d = 0; d < 8; d++) {
+                // skip diagonals for rook
+                if (piece.kind == Rook && d >= 4) continue;
+                // skip straight lines for bishop
+                if (piece.kind == Bishop && d < 4) continue;
+
+                int dx = directions[d][0];
+                int dy = directions[d][1];
+                uint8_t cx = x, cy = y;
+
+                while (true) {
+                    cx += dx;
+                    cy += dy;
+                    if (cx >= dim || cy >= dim) break;
+
+                    Tile* t = &state->board.tiles[cy][cx];
+                    if (t->some && t->value.player != capturer) break;
+
+                    t->captured_by = player_option(capturer);
+
+                    if (t->some) break; // alliée = stop aussi
+                }
+            }
+            break;
+        }
+
+        case Knight: {
+            const int jumps[8][2] = {
+                {2, 1}, {1, 2}, {-1, 2}, {-2, 1},
+                {-2, -1}, {-1, -2}, {1, -2}, {2, -1}
+            };
+            for (int i = 0; i < 8; i++) {
+                int nx = x + jumps[i][0];
+                int ny = y + jumps[i][1];
+                if (nx < dim && ny < dim) {
+                    Tile* t = &state->board.tiles[ny][nx];
+                    if (!t->some || t->value.player == capturer)
+                        t->captured_by = player_option(capturer);
+                }
+            }
+            break;
+        }
+
+        case Pawn: {
+            // Pions capturent uniquement en diagonale
+            int forward = (capturer == User) ? -1 : 1;
+            int dirs[2][2] = {
+                {forward, -1}, {forward, 1}
+            };
+            for (int i = 0; i < 2; i++) {
+                int nx = x + dirs[i][1];
+                int ny = y + dirs[i][0];
+                if (nx < dim && ny < dim) {
+                    Tile* t = &state->board.tiles[ny][nx];
+                    if (!t->some || t->value.player == capturer)
+                        t->captured_by = player_option(capturer);
+                }
+            }
+            break;
+        }
+    }
+}
+
 void toggle_user_turn(GameState* state) {
     if (state->is_turn_of == User) {
         state->is_turn_of = Opponent;

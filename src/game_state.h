@@ -46,6 +46,19 @@ typedef struct {
  */
 GameState init_game_state(GameMode mode, uint8_t dim);
 
+void apply_conquest_capture(GameState* state, uint8_t x, uint8_t y, ChessPiece piece, Player capturer);
+
+/**
+ * @brief Renvoie le nombre de pièces capturées par un joueur spécifique.
+ *
+ * Parcourt le plateau de jeu et compte les pièces capturées par le joueur indiqué.
+ *
+ * @param state Pointeur vers l'état de jeu à inspecter.
+ * @param player Le joueur dont on veut connaître le nombre de pièces capturées.
+ * @return uint8_t Le nombre de pièces capturées par le joueur.
+ */
+uint8_t get_captured_count_of(const GameState* state, Player player);
+
 /**
  * @brief Inverse le tour du joueur actif.
  *

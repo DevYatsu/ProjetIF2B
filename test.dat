@@ -1,0 +1,5 @@
+mode=Conquest
+white=Opponent
+turn=Opponent
+dim=7
+tiles= _:_:User Pawn:Opponent:Opponent _:_:Opponent _:_:Opponent _:_:Opponent _:_:_ _:_:Opponent Pawn:User:_ Pawn:User:User _:_:Opponent _:_:Opponent _:_:Opponent _:_:Opponent _:_:_ King:Opponent:_ Pawn:Opponent:Opponent _:_:Opponent _:_:Opponent Queen:Opponent:Opponent _:_:Opponent _:_:Opponent Rook:User:User Pawn:User:User _:_:Opponent _:_:Opponent _:_:Opponent _:_:Opponent _:_:_ Queen:User:User Pawn:Opponent:Opponent Pawn:Opponent:Opponent _:_:Opponent _:_:Opponent _:_:_ _:_:Opponent Pawn:Opponent:Opponent Pawn:User:User Pawn:User:User _:_:Opponent _:_:Opponent _:_:User _:_:User Rook:Opponent:Opponent Pawn:Opponent:Opponent Pawn:User:User Rook:Opponent:Opponent _:_:User _:_:User King:User:User

@@ -62,8 +62,7 @@ char* serialize(const GameState* state) {
     return str;
 }
 
-//> DESERIALIZE
-// Error codes for better error handling
+// Représente le résultat de la désérialisation
 typedef enum {
     DESERIALIZE_SUCCESS = 0,
     DESERIALIZE_NULL_INPUT,
@@ -72,10 +71,11 @@ typedef enum {
     DESERIALIZE_INVALID_DIMENSION,
     DESERIALIZE_INVALID_MODE,
     DESERIALIZE_INVALID_PLAYER,
-    DESERIALIZE_MISSING_TILES
+    DESERIALIZE_MISSING_TILES,
+    DESERIALIZE_INVALID_PIECE_COUNT
 } DeserializeResult;
 
-// Helper function to safely copy strings with bounds checking
+// Fonction utilitaire pour copier une chaîne de manière sécurisée
 static bool safe_string_copy(char* dest, const char* src, size_t dest_size) {
     if (!dest || !src || dest_size == 0) return false;
 
@@ -86,7 +86,7 @@ static bool safe_string_copy(char* dest, const char* src, size_t dest_size) {
     return true;
 }
 
-// Helper function to parse a field from a line
+// Fonction utilitaire pour analyser une ligne et extraire un champ spécifique
 static bool parse_field(const char* line, const char* prefix, char* output, size_t output_size) {
     size_t prefix_len = strlen(prefix);
     if (strncmp(line, prefix, prefix_len) != 0) return false;
@@ -94,7 +94,7 @@ static bool parse_field(const char* line, const char* prefix, char* output, size
     return safe_string_copy(output, line + prefix_len, output_size);
 }
 
-// Helper function to convert string to game mode enum
+// Fonction utilitaire pour convertir une chaîne en énumération GameMode
 static bool string_to_mode(const char* mode_str, GameMode* mode) {
     if (strcmp(mode_str, "Conquest") == 0) {
         *mode = Conquest;
@@ -107,7 +107,7 @@ static bool string_to_mode(const char* mode_str, GameMode* mode) {
     return false;
 }
 
-// Helper function to convert string to player enum
+// Fonction utilitaire pour convertir une chaîne en énumération Player
 static bool string_to_player(const char* player_str, Player* player) {
     if (strcmp(player_str, "User") == 0) {
         *player = User;
@@ -120,7 +120,7 @@ static bool string_to_player(const char* player_str, Player* player) {
     return false;
 }
 
-// Helper function to parse tiles from string
+// Fonction utilitaire pour convertir une chaîne en un Tile
 static DeserializeResult parse_tiles(const char* tiles_str, GameState* state, uint8_t dim) {
     const char* current = tiles_str;
     char tile_buffer[32];
@@ -155,30 +155,39 @@ static DeserializeResult parse_tiles(const char* tiles_str, GameState* state, ui
     return DESERIALIZE_SUCCESS;
 }
 
-// Main deserialize function with improved error handling
+/**
+ * @brief Fonction de désérialisation sécurisée d'une chaîne de caractères en un état de jeu.
+ *
+ * Cette fonction prend une chaîne de caractères représentant l'état du jeu et la convertit en une structure `GameState`.
+ * Elle gère les erreurs potentielles et retourne un code d'erreur approprié.
+ *
+ * @param str La chaîne de caractères à désérialiser.
+ * @param state Pointeur vers l'état du jeu à remplir.
+ * @return DeserializeResult Le résultat de la désérialisation.
+ */
 DeserializeResult deserialize_safe(const char* str, GameState* state) {
-    // Input validation
+    // Vérification des entrées
     if (!str || !state) {
         return DESERIALIZE_NULL_INPUT;
     }
 
-    // Initialize state to safe defaults
+    // Initialisation de l'état du jeu
     memset(state, 0, sizeof(GameState));
 
-    // Create working copy of input string
+    // Dupliquer la chaîne pour éviter de modifier l'original
     char* dup = strdup(str);
     if (!dup) {
         return DESERIALIZE_MEMORY_ERROR;
     }
 
-    // Parsing variables
+    // variables pour stocker les champs d'en-tête
     char mode_str[16] = {0};
     char white_str[16] = {0};
     char turn_str[16] = {0};
     int dim = 0;
     int parsed_fields = 0;
 
-    // Parse header fields line by line
+    // On parse les lignes d'en-tête une à une
     char* line = strtok(dup, "\n");
     while (line && parsed_fields < 4) {
         if (parse_field(line, "mode=", mode_str, sizeof(mode_str))) {
@@ -195,18 +204,19 @@ DeserializeResult deserialize_safe(const char* str, GameState* state) {
             }
             parsed_fields++;
         } else if (strncmp(line, "tiles=", 6) == 0) {
-            break; // Found tiles section, stop parsing headers
+            break; // Section des tuiles trouvée, arrêt de l'analyse des en-têtes
         }
         line = strtok(NULL, "\n");
     }
 
-    // Verify all required fields were found
-    if (parsed_fields != 4) {
+
+    // Vérifie que tous les champs requis ont été trouvés
+   if (parsed_fields != 4) {
         free(dup);
         return DESERIALIZE_INVALID_FORMAT;
     }
 
-    // Convert strings to enums with validation
+    // Convertit les chaînes en énumérations avec validation
     if (!string_to_mode(mode_str, &state->mode)) {
         free(dup);
         return DESERIALIZE_INVALID_MODE;
@@ -229,7 +239,7 @@ DeserializeResult deserialize_safe(const char* str, GameState* state) {
         return DESERIALIZE_MEMORY_ERROR;
     }
 
-    // Find and parse tiles section
+    // on s'occupe de la section des tiles
     const char* tiles_line = strstr(str, "tiles=");
     if (!tiles_line) {
         free(dup);
@@ -237,8 +247,8 @@ DeserializeResult deserialize_safe(const char* str, GameState* state) {
         return DESERIALIZE_MISSING_TILES;
     }
 
-    tiles_line += 6; // Skip "tiles="
-    DeserializeResult tiles_result = parse_tiles(tiles_line, state, (uint8_t)dim);
+    tiles_line += 6; // On saute "tiles="
+    const DeserializeResult tiles_result = parse_tiles(tiles_line, state, (uint8_t)dim);
 
     free(dup);
 
@@ -247,15 +257,32 @@ DeserializeResult deserialize_safe(const char* str, GameState* state) {
         return tiles_result;
     }
 
-    // Initialize piece counters (TODO: restore from serialized data)
+    // Initialisation de piece counters, et on restaure son état
     state->piece_counter_1 = init_piece_counter();
     state->piece_counter_2 = init_piece_counter();
+
+    for (uint8_t i = 0; i < state->board.dim; i++) {
+        for (uint8_t j = 0; j < state->board.dim; j++) {
+            const Tile tile = state->board.tiles[i][j];
+            if (tile.some) {
+                PieceCountTracker* counter = (tile.value.player == User) ? &state->piece_counter_1 : &state->piece_counter_2;
+                const bool result = add_piece(counter, tile.value.kind);
+
+                if (!result) {
+                    // Si on n'a pas pu ajouter la pièce, on libère le plateau et retourne une erreur
+                    // Cela peut arriver si le nombre de pièces sur le plateau dépasse la limite autorisée
+                    free_board(&state->board);
+                    return DESERIALIZE_INVALID_PIECE_COUNT;
+                }
+            }
+        }
+    }
 
     return DESERIALIZE_SUCCESS;
 }
 
-// Wrapper function that maintains original API but with better error handling
-GameState deserialize(const char* str) {
+// Fonction d'enrobage qui maintient l'API originale mais avec une meilleure gestion des erreurs
+GameState deserialiser(const char* str) {
     GameState state;
     const DeserializeResult result = deserialize_safe(str, &state);
 
@@ -269,7 +296,8 @@ GameState deserialize(const char* str) {
             "Dimension invalide (doit être comprise entre 6 et 12)",
             "Mode de jeu invalide",
             "Spécification de joueur invalide",
-            "Section des tuiles manquante"
+            "Section des tuiles manquante",
+            "Nombre de pièces capturées dépassant les limites autorisées"
         };
 
         fprintf(stderr, "Erreur de désérialisation : %s\n", error_messages[result]);
@@ -288,11 +316,6 @@ bool save_game(const GameState* state) {
     }
 
     char* serialized = serialize(state);
-    if (!serialized) {
-        fprintf(stderr, "Erreur : la sérialisation a échoué\n");
-        fclose(file);
-        return false;
-    }
 
     if (fprintf(file, "%s", serialized) < 0) {
         perror("Échec de l'écriture dans le fichier");
