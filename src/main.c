@@ -302,7 +302,7 @@ int main(void) {
                         break;
                     }
                     case Connect: {
-                        play_conquest_turn(&game_state);
+                        play_connect_turn(&game_state);
                         break;
                     }
                     default:
