@@ -11,19 +11,20 @@ GameState init_game_state(const GameMode mode, const uint8_t dim) {
   return state;
 }
 
-bool is_tile_captured_by_kind(const GameState *state, uint8_t x, uint8_t y,
-                              PieceKind required_kind) {
-  for (uint8_t i = 0; i < state->board.dim; ++i) {
-    for (uint8_t j = 0; j < state->board.dim; ++j) {
-      Tile t = state->board.tiles[i][j];
-      if (t.some && t.value.kind == required_kind && t.captured_by.some) {
-        if (t.captured_by.player == state->is_turn_of) {
-          return true;
-        }
-      }
-    }
+void toggle_user_turn(GameState *state) {
+  if (state->is_turn_of == User) {
+    state->is_turn_of = Opponent;
+  } else {
+    state->is_turn_of = User;
   }
-  return false;
+}
+
+char *get_user_turn_name(const GameState *state) {
+  return stringify_player(state->is_turn_of);
+}
+const PieceCountTracker *get_user_turn_count_tracker(const GameState *state) {
+  return (state->is_turn_of == User) ? &state->piece_counter_1
+                                     : &state->piece_counter_2;
 }
 
 uint8_t get_captured_count_of(const GameState *state, const Player player) {
@@ -143,21 +144,85 @@ void apply_conquest_capture(const GameState *state, const uint8_t x,
   }
 }
 
-void toggle_user_turn(GameState *state) {
-  if (state->is_turn_of == User) {
-    state->is_turn_of = Opponent;
-  } else {
-    state->is_turn_of = User;
+// Returns true if any piece of the given kind, captured by the current player, can capture the tile at (x, y)
+bool is_tile_captured_by_piece_kind(const GameState *state, uint8_t x, uint8_t y, PieceKind kind) {
+  for (uint8_t i = 0; i < state->board.dim; ++i) {
+    for (uint8_t j = 0; j < state->board.dim; ++j) {
+      Tile t = state->board.tiles[i][j];
+      if (t.some && t.value.kind == kind && t.captured_by.some && t.captured_by.player == state->is_turn_of) {
+        // Simulate capture from (j, i) to (x, y)
+        // Use the same logic as in apply_conquest_capture, but only check if (x, y) would be affected
+        switch (kind) {
+          case King: {
+            const int offsets[8][2] = {{-1, 0},  {1, 0},  {0, -1}, {0, 1},
+                                       {-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
+            for (int k = 0; k < 8; k++) {
+              int nx = j + offsets[k][0];
+              int ny = i + offsets[k][1];
+              if (nx == x && ny == y)
+                return true;
+            }
+            if (j == x && i == y) return true;
+            break;
+          }
+          case Queen:
+          case Rook:
+          case Bishop: {
+            const int directions[8][2] = {
+                {-1, 0},  {1, 0},  {0, -1}, {0, 1}, // rook
+                {-1, -1}, {-1, 1}, {1, -1}, {1, 1}  // bishop
+            };
+            for (int d = 0; d < 8; d++) {
+              if (kind == Rook && d >= 4) continue;
+              if (kind == Bishop && d < 4) continue;
+              int cx = j, cy = i;
+              while (1) {
+                cx += directions[d][0];
+                cy += directions[d][1];
+                if (cx < 0 || cy < 0 || cx >= state->board.dim || cy >= state->board.dim)
+                  break;
+                if (cx == x && cy == y)
+                  return true;
+                Tile *tt = &state->board.tiles[cy][cx];
+                if (tt->some) break;
+              }
+            }
+            if (j == x && i == y) return true;
+            break;
+          }
+          case Knight: {
+            const int jumps[8][2] = {{2, 1},   {1, 2},   {-1, 2}, {-2, 1},
+                                     {-2, -1}, {-1, -2}, {1, -2}, {2, -1}};
+            for (int k = 0; k < 8; k++) {
+              int nx = j + jumps[k][0];
+              int ny = i + jumps[k][1];
+              if (nx == x && ny == y)
+                return true;
+            }
+            if (j == x && i == y) return true;
+            break;
+          }
+          case Pawn: {
+            int forward = (state->is_turn_of == User) ? -1 : 1;
+            int dirs[2][2] = {{forward, -1}, {forward, 1}};
+            for (int k = 0; k < 2; k++) {
+              int nx = j + dirs[k][1];
+              int ny = i + dirs[k][0];
+              if (nx == x && ny == y)
+                return true;
+            }
+            if (j == x && i == y) return true;
+            break;
+          }
+          default:
+            break;
+        }
+      }
+    }
   }
+  return false;
 }
 
-char *get_user_turn_name(const GameState *state) {
-  return stringify_player(state->is_turn_of);
-}
-const PieceCountTracker *get_user_turn_count_tracker(const GameState *state) {
-  return (state->is_turn_of == User) ? &state->piece_counter_1
-                                     : &state->piece_counter_2;
-}
 
 /**
  * @brief Affiche dans la console un résumé de l'état de jeu.

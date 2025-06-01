@@ -82,6 +82,8 @@ bool is_tile_captured_by_kind(const GameState *state, uint8_t x, uint8_t y,
 void apply_conquest_capture(const GameState *state, uint8_t x, uint8_t y,
                             ChessPiece piece, Player capturer);
 
+bool is_tile_captured_by_piece_kind(const GameState *state, uint8_t x, uint8_t y, PieceKind kind);
+
 /**
  * @brief Renvoie le nombre de pièces capturées par un joueur spécifique.
  *

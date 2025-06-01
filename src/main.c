@@ -64,15 +64,16 @@ void play_conquest_turn(const GameState *game_state) {
 
 void play_connect_turn(GameState *game_state) {
   Tile tile = select_valid_tile_for_connect(game_state);
-  const TargetPosition pos =select_valid_target_position_for_connect(game_state, &tile);
+  const TargetPosition pos = select_valid_target_position_for_connect(game_state, &tile);
 
   tile.captured_by = player_option(game_state->is_turn_of);
   game_state->board.tiles[pos.y][pos.x] = tile;
   apply_conquest_capture(game_state, pos.x, pos.y, tile.value, game_state->is_turn_of);
 
-  // Game ends when king is placed in Connect mode
+  // La partie se termine dès qu'un joueur pose son roi
   if (tile.value.kind == King) {
-    printf("Le roi a été placé. La partie est terminée !\n");
+    printf("Le roi a été placé par le joueur %s. La partie est terminée !\n",
+           stringify_player(game_state->is_turn_of));
     set_all_to_zero(&game_state->piece_counter_1);
     set_all_to_zero(&game_state->piece_counter_2);
   }
