@@ -2,22 +2,19 @@
 #define SELECT_H
 #include "game_state.h"
 
-#ifndef  _WIN32
+#ifndef _WIN32
 typedef uint8_t __uint8_t;
 #endif
 
-typedef enum {
-    Start = 1, Restart, Leave
-} StartOption;
+typedef enum { Start = 1, Restart, Leave } StartOption;
 
-typedef enum {
-    Play = 1, GiveUp, SaveGame
-} RoundOption;
+typedef enum { Play = 1, GiveUp, SaveGame } RoundOption;
 
 /**
  * @brief Affiche un menu et lit une option utilisateur comprise entre 1 et 3.
  *
- * Cette fonction présente un menu interactif à l'utilisateur avec trois options :
+ * Cette fonction présente un menu interactif à l'utilisateur avec trois options
+ * :
  *   1. Démarrer une partie
  *   2. Reprendre une partie
  *   3. Quitter
@@ -33,7 +30,8 @@ StartOption select_option();
 /**
  * @brief Affiche un menu et lit une option utilisateur comprise entre 1 et 3.
  *
- * Cette fonction présente un menu interactif à l'utilisateur avec trois options :
+ * Cette fonction présente un menu interactif à l'utilisateur avec trois options
+ * :
  *   1. Poser une pièce
  *   2. Abandonner
  *   3. Sauvegarder la partie
@@ -62,11 +60,11 @@ GameMode select_mode();
 /**
  * @brief Demande à l'utilisateur de choisir la taille de l'échiquier.
  *
- * L'utilisateur saisit une dimension unique pour créer un plateau carré (par exemple 8 pour un 8x8).
- * La taille doit être comprise entre 6 et 12 inclus.
- * La saisie est répétée jusqu'à ce qu'une valeur valide soit entrée.
+ * L'utilisateur saisit une dimension unique pour créer un plateau carré (par
+ * exemple 8 pour un 8x8). La taille doit être comprise entre 6 et 12 inclus. La
+ * saisie est répétée jusqu'à ce qu'une valeur valide soit entrée.
  *
  * @return __uint8_t La dimension choisie pour l'échiquier (entre 6 et 12).
  */
 uint8_t select_dimension();
-#endif //SELECT_H
+#endif // SELECT_H

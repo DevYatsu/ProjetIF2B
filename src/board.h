@@ -1,8 +1,8 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include <stdint.h>
 #include "piece.h"
+#include <stdint.h>
 
 /**
  * @brief Représente une tuile sur le plateau de jeu.
@@ -11,17 +11,17 @@
  * Le champ `some` indique si la tuile contient une pièce.
  */
 typedef struct {
-    bool some;
-    ChessPiece value;
-    PlayerOption captured_by;
+  bool some;
+  ChessPiece value;
+  PlayerOption captured_by;
 } Tile;
 
 /**
  * @brief Représente le plateau de jeu sous forme de grille de tuiles.
  */
 typedef struct {
-    Tile **tiles;   ///< Tableau 2D de pointeurs vers des tuiles
-    uint8_t dim;    ///< Dimension du plateau (dim x dim)
+  Tile **tiles; ///< Tableau 2D de pointeurs vers des tuiles
+  uint8_t dim;  ///< Dimension du plateau (dim x dim)
 } Board;
 
 /**
@@ -65,11 +65,13 @@ Tile tile_with_piece(ChessPiece piece);
  *
  * @param piece_str Chaîne représentant le type de pièce (ex: "Pawn").
  * @param player_str Chaîne représentant le joueur (ex: "User").
- * @param captured_by_str Chaîne représentant le joueur qui a capturé la pièce (ex: "Opponent").
- * @param from_user_input Indique si l'entrée provient de l'utilisateur (pour des messages d'erreur).
+ * @param captured_by_str Chaîne représentant le joueur qui a capturé la pièce
+ * (ex: "Opponent").
+ * @param from_user_input Indique si l'entrée provient de l'utilisateur (pour
+ * des messages d'erreur).
  * @return Tile La tuile désérialisée.
  */
-Tile deserialize_tile(const char* piece_str, const char* player_str, const char* captured_by_str, bool from_user_input);
+Tile deserialize_tile(const char *piece_str, const char *player_str,
+                      const char *captured_by_str, bool from_user_input);
 
-
-#endif //BOARD_H
+#endif // BOARD_H

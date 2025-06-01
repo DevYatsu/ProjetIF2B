@@ -10,25 +10,24 @@
 #define sleep_ms(x) usleep(x * 1000)
 #endif
 
-
 /**
- * @brief Affiche une chaîne de caractères avec un effet machine à écrire, ajoutant un délai entre chaque caractère.
+ * @brief Affiche une chaîne de caractères avec un effet machine à écrire,
+ * ajoutant un délai entre chaque caractère.
  * @param str La chaîne à afficher.
  * @param delay_ms Le délai en millisecondes entre chaque caractère.
  */
-void print_effect(const char* str, unsigned int delay_ms);
+void print_effect(const char *str, unsigned int delay_ms);
 
 /**
- * @brief Affiche une chaîne de caractères à la sortie standard avec un effet machine à écrire prédéfini.
+ * @brief Affiche une chaîne de caractères à la sortie standard avec un effet
+ * machine à écrire prédéfini.
  * @param str La chaîne à afficher.
  */
-void print_text(const char* str);
+void print_text(const char *str);
 
 /**
  * @brief Efface le contenu de la console.
  */
 void clear_screen();
 
-
-
-#endif //PRINT_H
+#endif // PRINT_H

@@ -1,19 +1,20 @@
 
 #ifndef GAME_STATE_H
 #define GAME_STATE_H
-#include "player.h"
 #include "board.h"
 #include "piece_count_tracker.h"
+#include "player.h"
 
 /**
  * @brief Enum représentant les modes de jeu disponibles.
  *
  * - `Conquest` : Mode basé sur la conquête du plateau.
- * - `Connect` : Mode basé sur la connexion de pièces (similaire à puissance 4, par exemple).
+ * - `Connect` : Mode basé sur la connexion de pièces (similaire à puissance 4,
+ * par exemple).
  */
 typedef enum {
-    Conquest = 1, ///< Mode conquête
-    Connect   ///< Mode connecte
+  Conquest = 1, ///< Mode conquête
+  Connect       ///< Mode connecte
 } GameMode;
 
 /**
@@ -26,12 +27,14 @@ typedef enum {
  * - Le joueur dont c'est le tour (`Player`)
  */
 typedef struct {
-    GameMode mode;       ///< Mode de jeu actuel
-    Board board;         ///< Plateau de jeu avec les positions des pièces
-    Player is_turn_of;   ///< Joueur à qui c'est le tour (User ou AI)
-    Player is_white;     ///< Joueur qui joue avec les pièces blanches
-    PieceCountTracker piece_counter_1; // Compteur de pièces disponibles pour le joueur 1
-    PieceCountTracker piece_counter_2; // Compteur de pièces disponibles pour le joueur 2
+  GameMode mode;     ///< Mode de jeu actuel
+  Board board;       ///< Plateau de jeu avec les positions des pièces
+  Player is_turn_of; ///< Joueur à qui c'est le tour (User ou AI)
+  Player is_white;   ///< Joueur qui joue avec les pièces blanches
+  PieceCountTracker
+      piece_counter_1; // Compteur de pièces disponibles pour le joueur 1
+  PieceCountTracker
+      piece_counter_2; // Compteur de pièces disponibles pour le joueur 2
 } GameState;
 
 /**
@@ -47,18 +50,22 @@ typedef struct {
 GameState init_game_state(GameMode mode, uint8_t dim);
 
 /**
- * @brief Checks if there is a tile of a given kind captured by the current player.
+ * @brief Checks if there is a tile of a given kind captured by the current
+ * player.
  *
- * Iterates over the board to find if any tile contains a piece of the specified kind
- * and is marked as captured by the player whose turn it is.
+ * Iterates over the board to find if any tile contains a piece of the specified
+ * kind and is marked as captured by the player whose turn it is.
  *
  * @param state Pointer to the current game state.
- * @param x Unused parameter (reserved for future use or interface compatibility).
- * @param y Unused parameter (reserved for future use or interface compatibility).
+ * @param x Unused parameter (reserved for future use or interface
+ * compatibility).
+ * @param y Unused parameter (reserved for future use or interface
+ * compatibility).
  * @param required_kind The kind of piece to check for.
  * @return true if such a tile exists, false otherwise.
  */
-bool is_tile_captured_by_kind(const GameState* state, uint8_t x, uint8_t y, PieceKind required_kind);
+bool is_tile_captured_by_kind(const GameState *state, uint8_t x, uint8_t y,
+                              PieceKind required_kind);
 
 /**
  * @brief Applique la capture de pièces selon les règles du mode Conquest.
@@ -72,27 +79,30 @@ bool is_tile_captured_by_kind(const GameState* state, uint8_t x, uint8_t y, Piec
  * @param piece La pièce qui est placée sur le plateau.
  * @param capturer Le joueur qui effectue la capture.
  */
-void apply_conquest_capture(const GameState* state, uint8_t x, uint8_t y, ChessPiece piece, Player capturer);
+void apply_conquest_capture(const GameState *state, uint8_t x, uint8_t y,
+                            ChessPiece piece, Player capturer);
 
 /**
  * @brief Renvoie le nombre de pièces capturées par un joueur spécifique.
  *
- * Parcourt le plateau de jeu et compte les pièces capturées par le joueur indiqué.
+ * Parcourt le plateau de jeu et compte les pièces capturées par le joueur
+ * indiqué.
  *
  * @param state Pointeur vers l'état de jeu à inspecter.
  * @param player Le joueur dont on veut connaître le nombre de pièces capturées.
  * @return uint8_t Le nombre de pièces capturées par le joueur.
  */
-uint8_t get_captured_count_of(const GameState* state, Player player);
+uint8_t get_captured_count_of(const GameState *state, Player player);
 
 /**
  * @brief Inverse le tour du joueur actif.
  *
- * Permet de passer du joueur actuel à l'autre (ex: de l'utilisateur à l'adversaire).
+ * Permet de passer du joueur actuel à l'autre (ex: de l'utilisateur à
+ * l'adversaire).
  *
  * @param state Pointeur vers l'état de jeu à modifier.
  */
-void toggle_user_turn(GameState* state);
+void toggle_user_turn(GameState *state);
 
 /**
  * @brief Renvoie le nom du joueur dont c'est le tour.
@@ -102,7 +112,7 @@ void toggle_user_turn(GameState* state);
  * @param state Pointeur vers l'état de jeu.
  * @return char* Le nom du joueur actuel ("User", "Opponent", etc.).
  */
-char* get_user_turn_name(const GameState* state);
+char *get_user_turn_name(const GameState *state);
 
 /**
  * @brief Renvoie le pointeur vers le compteur de pièces du joueur actuel.
@@ -112,17 +122,18 @@ char* get_user_turn_name(const GameState* state);
  * @param state Pointeur vers l'état de jeu.
  * @return const PieceCountTracker* Le compteur associé au joueur actif.
  */
-const PieceCountTracker* get_user_turn_count_tracker(const GameState* state);
+const PieceCountTracker *get_user_turn_count_tracker(const GameState *state);
 
 /**
  * @brief Affiche le plateau de jeu en utilisant des représentations ASCII.
  *
- * Représente chaque pièce à l'aide d'un dessin ASCII, en distinguant les joueurs.
- * Ajoute les coordonnées comme dans une vraie partie d'échecs (lettres et chiffres).
+ * Représente chaque pièce à l'aide d'un dessin ASCII, en distinguant les
+ * joueurs. Ajoute les coordonnées comme dans une vraie partie d'échecs (lettres
+ * et chiffres).
  *
  * @param state Pointeur vers l'état de jeu contenant le plateau.
  */
-void print_board(const GameState* state);
+void print_board(const GameState *state);
 
 /**
  * @brief Libère la mémoire allouée pour le plateau de jeu.
@@ -133,4 +144,4 @@ void print_board(const GameState* state);
  */
 void free_game_state(const GameState *state);
 
-#endif //GAME_STATE_H
+#endif // GAME_STATE_H
