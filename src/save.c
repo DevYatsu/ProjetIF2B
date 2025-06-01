@@ -79,7 +79,7 @@ typedef enum {
 static bool safe_string_copy(char* dest, const char* src, size_t dest_size) {
     if (!dest || !src || dest_size == 0) return false;
 
-    size_t src_len = strlen(src);
+    const size_t src_len = strlen(src);
     if (src_len >= dest_size) return false;
 
     strcpy(dest, src);
@@ -88,7 +88,7 @@ static bool safe_string_copy(char* dest, const char* src, size_t dest_size) {
 
 // Fonction utilitaire pour analyser une ligne et extraire un champ spécifique
 static bool parse_field(const char* line, const char* prefix, char* output, size_t output_size) {
-    size_t prefix_len = strlen(prefix);
+    const size_t prefix_len = strlen(prefix);
     if (strncmp(line, prefix, prefix_len) != 0) return false;
 
     return safe_string_copy(output, line + prefix_len, output_size);
@@ -188,7 +188,7 @@ DeserializeResult deserialize_safe(const char* str, GameState* state) {
     int parsed_fields = 0;
 
     // On parse les lignes d'en-tête une à une
-    char* line = strtok(dup, "\n");
+    const char* line = strtok(dup, "\n");
     while (line && parsed_fields < 4) {
         if (parse_field(line, "mode=", mode_str, sizeof(mode_str))) {
             parsed_fields++;
