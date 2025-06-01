@@ -67,4 +67,73 @@ GameMode select_mode();
  * @return __uint8_t La dimension choisie pour l'échiquier (entre 6 et 12).
  */
 uint8_t select_dimension();
+
+typedef struct {
+    int x;
+    int y;
+} TargetPosition;
+
+
+/**
+ * @brief Sélectionne une tuile valide à jouer.
+ *
+ * Cette fonction demande à l'utilisateur de choisir une pièce à jouer. Elle
+ * vérifie que la pièce est valide et qu'il en reste suffisamment dans le
+ * compteur de pièces du joueur actuel.
+ *
+ * @param state L'état actuel du jeu.
+ * @return Tile La tuile sélectionnée par l'utilisateur.
+ */
+Tile select_valid_tile(const GameState* state);
+
+/**
+ * @brief Sélectionne une position valide sur le plateau de jeu.
+ *
+ * Cette fonction demande à l'utilisateur de choisir une position (x, y) sur le
+ * plateau de jeu. Elle s'assure que la position est valide et n'est pas déjà
+ * occupée par une autre pièce.
+ *
+ * @param state L'état actuel du jeu.
+ * @return TargetPosition La position valide sélectionnée par l'utilisateur.
+ */
+TargetPosition select_valid_target_position(const GameState* state);
+
+/**
+ * @brief Sélectionne une tuile valide pour le mode Connect.
+ *
+ * Cette fonction demande à l'utilisateur de choisir une pièce à jouer dans le
+ * mode Connect. Elle vérifie que la pièce est valide et qu'il en reste
+ * suffisamment dans le compteur de pièces du joueur actuel.
+ *
+ * @param state L'état actuel du jeu.
+ * @return Tile La tuile sélectionnée par l'utilisateur.
+ */
+Tile select_valid_tile_for_connect(const GameState* state);
+
+/**
+ * @brief Vérifie si une position de placement est valide pour le mode Connect.
+ *
+ * Cette fonction vérifie si une pièce de type `kind` peut être placée à la
+ * position (x, y) sur le plateau de jeu dans le mode Connect.
+ *
+ * @param state L'état actuel du jeu.
+ * @param kind Le type de pièce à placer.
+ * @param x La coordonnée x de la position.
+ * @param y La coordonnée y de la position.
+ * @return bool Vrai si le placement est valide, faux sinon.
+ */
+bool is_valid_connect_placement(const GameState* state, PieceKind kind, uint8_t x, uint8_t y);
+
+/**
+ * @brief Sélectionne une position valide pour placer une pièce dans le mode Connect.
+ *
+ * Cette fonction demande à l'utilisateur de choisir une position (x, y) pour
+ * placer une pièce dans le mode Connect. Elle s'assure que la position est valide et n'est pas déjà
+ *
+ * @param state L'état actuel du jeu.
+ * @param tile La tuile à placer.
+ * @return TargetPosition La position valide sélectionnée par l'utilisateur.
+ */
+TargetPosition select_valid_target_position_for_connect(const GameState* state, const Tile* tile);
+
 #endif // SELECT_H

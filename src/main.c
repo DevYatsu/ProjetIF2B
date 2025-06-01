@@ -53,197 +53,22 @@ void print_title_screen() {
   clear_screen();
 }
 
-void play_conquest_turn(GameState *game_state) {
-  char nom_piece[10];
-  printf("Quelle pièce souhaitez-vous jouer ? ");
-  scanf("%9s", nom_piece);
-
-  const char *current_player_str = stringify_player(game_state->is_turn_of);
-  Tile tile = deserialize_tile(nom_piece, current_player_str, "", true);
-
-  PieceCountTracker *piece_counter = (game_state->is_turn_of == User)
-                                         ? &game_state->piece_counter_1
-                                         : &game_state->piece_counter_2;
-
-  bool piece_allowed =
-      tile.some ? add_piece(piece_counter, tile.value.kind) : false;
-
-  while (!tile.some || !piece_allowed) {
-    if (!piece_allowed) {
-      printf("Vous n'avez plus de %s à jouer: ", nom_piece);
-      piece_allowed = true;
-    } else {
-      printf("Pièce inconnue: ");
-    }
-    scanf("%9s", nom_piece);
-    tile = deserialize_tile(nom_piece, current_player_str, "", true);
-
-    if (tile.some) {
-      piece_allowed = add_piece(piece_counter, tile.value.kind);
-    }
-  }
-
-  const uint8_t dim = game_state->board.dim;
-  uint8_t x = dim;
-  uint8_t y = dim;
-
-  while (x >= dim || y >= dim) {
-    char target_tile[10] = {0}; // autorise jusqu’à "A12"
-
-    printf("Où souhaitez-vous la placer ? ");
-    scanf("%5s", target_tile); // max 5 caractères lus
-    printf("%lld", strlen(target_tile));
-
-    target_tile[0] = (char)toupper((unsigned char)target_tile[0]);
-
-    if (strlen(target_tile) < 2 || strlen(target_tile) > 3) {
-      printf("Erreur : format invalide (ex: A3 ou A10).\n");
-      continue;
-    }
-
-    if (target_tile[1] == '\0' && !isdigit(target_tile[1]) ||
-        (target_tile[2] && !isdigit(target_tile[2]))) {
-      printf("Erreur : format invalide (ex: A3 ou A10).\n");
-      continue;
-    }
-
-    const int row =
-        (target_tile[2] == '\0')
-            ? (target_tile[1] - '0')
-            : ((target_tile[1] - '0') * 10 + (target_tile[2] - '0'));
-
-    if (row <= 0 || row > dim) {
-      printf("Erreur : ligne invalide (1-%u).\n", dim);
-      continue;
-    }
-
-    const int col_index = target_tile[0] - 'A';
-    if (col_index < 0 || col_index >= dim) {
-      printf("Erreur : colonne invalide (A-%c).\n", 'A' + dim - 1);
-      continue;
-    }
-
-    x = col_index;
-    y = dim - row;
-
-    if (x >= dim || y >= dim) {
-      printf("Erreur : coordonnées hors limites (%ux%u).\n", dim, dim);
-      x = y = dim;
-      continue;
-    }
-
-    if (game_state->board.tiles[y][x].some) {
-      printf("Erreur : Il y a déjà une pièce en %s.\n", target_tile);
-      x = y = dim;
-    }
-  }
+void play_conquest_turn(const GameState *game_state) {
+  Tile tile = select_valid_tile(game_state);
+  const TargetPosition pos = select_valid_target_position(game_state);
 
   tile.captured_by = player_option(game_state->is_turn_of);
-  game_state->board.tiles[y][x] = tile;
-  apply_conquest_capture(game_state, x, y, tile.value, game_state->is_turn_of);
+  game_state->board.tiles[pos.y][pos.x] = tile;
+  apply_conquest_capture(game_state, pos.x, pos.y, tile.value, game_state->is_turn_of);
 }
 
 void play_connect_turn(GameState *game_state) {
-  char nom_piece[10];
-  printf("Quelle pièce souhaitez-vous jouer ? ");
-  scanf("%9s", nom_piece);
-
-  const char *current_player_str = stringify_player(game_state->is_turn_of);
-  Tile tile = deserialize_tile(nom_piece, current_player_str, "", true);
-
-  PieceCountTracker *piece_counter = (game_state->is_turn_of == User)
-                                         ? &game_state->piece_counter_1
-                                         : &game_state->piece_counter_2;
-
-  bool piece_allowed =
-      tile.some ? add_piece(piece_counter, tile.value.kind) : false;
-
-  while (!tile.some || !piece_allowed) {
-    if (!piece_allowed) {
-      printf("Vous n'avez plus de %s à jouer: ", nom_piece);
-      piece_allowed = true;
-    } else {
-      printf("Pièce inconnue: ");
-    }
-    scanf("%9s", nom_piece);
-    tile = deserialize_tile(nom_piece, current_player_str, "", true);
-    if (tile.some)
-      piece_allowed = add_piece(piece_counter, tile.value.kind);
-  }
-
-  const uint8_t dim = game_state->board.dim;
-  uint8_t x = dim, y = dim;
-
-  while (x >= dim || y >= dim) {
-    char target_tile[6]; // large enough for A12\0
-    printf("Où souhaitez-vous la placer ? ");
-    scanf("%5s", target_tile);
-
-    target_tile[0] = (char)toupper((unsigned char)target_tile[0]);
-
-    if (!isdigit(target_tile[1]) ||
-        (target_tile[2] && !isdigit(target_tile[2]))) {
-      printf("Erreur : format invalide (ex: A3 ou A10).\n");
-      continue;
-    }
-
-    const int row =
-        (target_tile[2] == '\0')
-            ? (target_tile[1] - '0')
-            : ((target_tile[1] - '0') * 10 + (target_tile[2] - '0'));
-
-    if (row <= 0 || row > dim) {
-      printf("Erreur : ligne invalide (1-%u).\n", dim);
-      continue;
-    }
-
-    const int col_index = target_tile[0] - 'A';
-    if (col_index < 0 || col_index >= dim) {
-      printf("Erreur : colonne invalide (A-%c).\n", 'A' + dim - 1);
-      continue;
-    }
-
-    x = (uint8_t)col_index;
-    y = dim - row;
-
-    if (game_state->board.tiles[y][x].some) {
-      printf("Erreur : Il y a déjà une pièce en %s.\n", target_tile);
-      x = y = dim;
-      continue;
-    }
-
-    bool allowed = false;
-    switch (tile.value.kind) {
-    case Pawn:
-      allowed = true;
-      break;
-    case Knight:
-      allowed = is_tile_captured_by_kind(game_state, x, y, Pawn);
-      break;
-    case Bishop:
-      allowed = is_tile_captured_by_kind(game_state, x, y, Knight);
-      break;
-    case Rook:
-      allowed = is_tile_captured_by_kind(game_state, x, y, Bishop);
-      break;
-    case Queen:
-      allowed = is_tile_captured_by_kind(game_state, x, y, Rook);
-      break;
-    case King:
-      allowed = is_tile_captured_by_kind(game_state, x, y, Queen);
-      break;
-    }
-
-    if (!allowed) {
-      printf("Erreur : vous ne pouvez pas poser un %s ici.\n", nom_piece);
-      x = y = dim;
-    }
-  }
+  Tile tile = select_valid_tile_for_connect(game_state);
+  const TargetPosition pos =select_valid_target_position_for_connect(game_state, &tile);
 
   tile.captured_by = player_option(game_state->is_turn_of);
-  game_state->board.tiles[y][x] = tile;
-
-  apply_conquest_capture(game_state, x, y, tile.value, game_state->is_turn_of);
+  game_state->board.tiles[pos.y][pos.x] = tile;
+  apply_conquest_capture(game_state, pos.x, pos.y, tile.value, game_state->is_turn_of);
 
   // Game ends when king is placed in Connect mode
   if (tile.value.kind == King) {

@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * @brief Demande et valide une entrée utilisateur dans une plage de caractères.
@@ -105,3 +106,177 @@ uint8_t select_dimension() {
 
   return (uint8_t)value;
 }
+
+Tile select_valid_tile(const GameState* state) {
+  char nom_piece[10];
+  const char* current_player_str = stringify_player(state->is_turn_of);
+  Tile tile;
+  bool piece_allowed = false;
+
+  PieceCountTracker* piece_counter = (state->is_turn_of == User)
+      ? (PieceCountTracker*)&state->piece_counter_1
+      : (PieceCountTracker*)&state->piece_counter_2;
+
+  do {
+    printf("Quelle pièce souhaitez-vous jouer ? ");
+    scanf("%9s", nom_piece);
+    tile = deserialize_tile(nom_piece, current_player_str, "", true);
+
+    if (!tile.some) {
+      printf("Pièce inconnue.\n");
+      continue;
+    }
+
+    piece_allowed = add_piece(piece_counter, tile.value.kind);
+    if (!piece_allowed) {
+      printf("Vous n'avez plus de %s à jouer.\n", nom_piece);
+    }
+
+  } while (!tile.some || !piece_allowed);
+
+  return tile;
+}
+
+TargetPosition select_valid_target_position(const GameState* state) {
+  const uint8_t dim = state->board.dim;
+  char target_tile[10] = {0};
+
+  while (1) {
+    printf("Où souhaitez-vous la placer ? ");
+    scanf("%5s", target_tile);
+
+    const size_t len = strlen(target_tile);
+    if (len < 2 || len > 3) {
+      printf("Erreur : format invalide (ex: A3 ou A10).\n");
+      continue;
+    }
+
+    target_tile[0] = (char)toupper((unsigned char)target_tile[0]);
+
+    if (!isdigit(target_tile[1]) || (len == 3 && !isdigit(target_tile[2]))) {
+      printf("Erreur : les chiffres sont invalides.\n");
+      continue;
+    }
+
+    const int row = (len == 2)
+        ? (target_tile[1] - '0')
+        : ((target_tile[1] - '0') * 10 + (target_tile[2] - '0'));
+
+    if (row <= 0 || row > dim) {
+      printf("Erreur : ligne invalide (1-%u).\n", dim);
+      continue;
+    }
+
+    const int col = target_tile[0] - 'A';
+    if (col < 0 || col >= dim) {
+      printf("Erreur : colonne invalide (A-%c).\n", 'A' + dim - 1);
+      continue;
+    }
+
+    const uint8_t px = (uint8_t)col;
+    const uint8_t py = dim - (uint8_t)row;
+
+    if (state->board.tiles[py][px].some) {
+      printf("Erreur : Il y a déjà une pièce en %s.\n", target_tile);
+      continue;
+    }
+
+    return (TargetPosition){.x = px, .y = py};
+  }
+}
+
+Tile select_valid_tile_for_connect(const GameState* state) {
+  char nom_piece[10];
+  const char* current_player_str = stringify_player(state->is_turn_of);
+  Tile tile;
+  bool piece_allowed = false;
+
+  PieceCountTracker* piece_counter = (state->is_turn_of == User)
+      ? (PieceCountTracker*)&state->piece_counter_1
+      : (PieceCountTracker*)&state->piece_counter_2;
+
+  do {
+    printf("Quelle pièce souhaitez-vous jouer ? ");
+    scanf("%9s", nom_piece);
+    tile = deserialize_tile(nom_piece, current_player_str, "", true);
+
+    if (!tile.some) {
+      printf("Pièce inconnue.\n");
+      continue;
+    }
+
+    piece_allowed = add_piece(piece_counter, tile.value.kind);
+    if (!piece_allowed) {
+      printf("Vous n'avez plus de %s à jouer.\n", nom_piece);
+    }
+
+  } while (!tile.some || !piece_allowed);
+
+  return tile;
+}
+
+bool is_valid_connect_placement(const GameState* state, PieceKind kind, uint8_t x, uint8_t y) {
+  switch (kind) {
+    case Pawn: return true;
+    case Knight: return is_tile_captured_by_kind(state, x, y, Pawn);
+    case Bishop: return is_tile_captured_by_kind(state, x, y, Knight);
+    case Rook: return is_tile_captured_by_kind(state, x, y, Bishop);
+    case Queen: return is_tile_captured_by_kind(state, x, y, Rook);
+    case King: return is_tile_captured_by_kind(state, x, y, Queen);
+    default: return false;
+  }
+}
+
+TargetPosition select_valid_target_position_for_connect(const GameState* state, const Tile* tile) {
+  const uint8_t dim = state->board.dim;
+  char target_tile[10] = {0};
+
+  while (1) {
+    printf("Où souhaitez-vous la placer ? ");
+    scanf("%5s", target_tile);
+
+    const size_t len = strlen(target_tile);
+    if (len < 2 || len > 3) {
+      printf("Erreur : format invalide (ex: A3 ou A10).\n");
+      continue;
+    }
+
+    target_tile[0] = (char)toupper((unsigned char)target_tile[0]);
+
+    if (!isdigit(target_tile[1]) || (len == 3 && !isdigit(target_tile[2]))) {
+      printf("Erreur : les chiffres sont invalides.\n");
+      continue;
+    }
+
+    int row = (len == 2)
+        ? (target_tile[1] - '0')
+        : ((target_tile[1] - '0') * 10 + (target_tile[2] - '0'));
+
+    if (row <= 0 || row > dim) {
+      printf("Erreur : ligne invalide (1-%u).\n", dim);
+      continue;
+    }
+
+    int col = target_tile[0] - 'A';
+    if (col < 0 || col >= dim) {
+      printf("Erreur : colonne invalide (A-%c).\n", 'A' + dim - 1);
+      continue;
+    }
+
+    const uint8_t px = (uint8_t)col;
+    const uint8_t py = dim - (uint8_t)row;
+
+    if (state->board.tiles[py][px].some) {
+      printf("Erreur : Il y a déjà une pièce en %s.\n", target_tile);
+      continue;
+    }
+
+    if (!is_valid_connect_placement(state, tile->value.kind, px, py)) {
+      printf("Erreur : vous ne pouvez pas poser un %s ici.\n", stringify_piece(tile->value.kind));
+      continue;
+    }
+
+    return (TargetPosition){.x = px, .y = py};
+  }
+}
+
