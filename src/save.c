@@ -281,8 +281,8 @@ DeserializeResult deserialize_safe(const char* str, GameState* state) {
     return DESERIALIZE_SUCCESS;
 }
 
-// Fonction d'enrobage qui maintient l'API originale mais avec une meilleure gestion des erreurs
-GameState deserialiser(const char* str) {
+// Fonction qui gère la désérialisation d'une chaîne de caractères en un `GameState` avec gestion des erreurs
+GameState deserialize(const char* str) {
     GameState state;
     const DeserializeResult result = deserialize_safe(str, &state);
 
@@ -306,7 +306,6 @@ GameState deserialiser(const char* str) {
 
     return state;
 }
-//< DESERIALIZE
 
 bool save_game(const GameState* state) {
     FILE* file = fopen(FILENAME, "w");
