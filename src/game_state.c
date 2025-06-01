@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "game_state.h"
-#include <stdlib.h>
 #include "board.h"
 
 GameState init_game_state(const GameMode mode, const uint8_t dim) {
@@ -10,6 +9,20 @@ GameState init_game_state(const GameMode mode, const uint8_t dim) {
     state.is_turn_of = state.is_white = random_player();
     state.piece_counter_1 = state.piece_counter_2 = init_piece_counter();
     return state;
+}
+
+bool is_tile_captured_by_kind(const GameState* state, uint8_t x, uint8_t y, PieceKind required_kind) {
+    for (uint8_t i = 0; i < state->board.dim; ++i) {
+        for (uint8_t j = 0; j < state->board.dim; ++j) {
+            Tile t = state->board.tiles[i][j];
+            if (t.some && t.value.kind == required_kind && t.captured_by.some) {
+                if (t.captured_by.player == state->is_turn_of) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 uint8_t get_captured_count_of(const GameState* state, const Player player) {
