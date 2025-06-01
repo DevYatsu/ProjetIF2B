@@ -51,6 +51,83 @@ void print_title_screen() {
     clear_screen();
 }
 
+void play_conquest_turn(GameState* game_state) {
+                            char nom_piece[10];
+                        printf("Quelle pièce souhaitez-vous jouer ? ");
+                        scanf("%9s", nom_piece);
+
+                        const char* current_player_str = stringify_player(game_state->is_turn_of);
+                        Tile tile = deserialize_tile(nom_piece, current_player_str, "", true);
+
+                        PieceCountTracker *piece_counter = (game_state->is_turn_of == User)
+                            ? &game_state->piece_counter_1
+                            : &game_state->piece_counter_2;
+
+                        bool piece_allowed = tile.some ? add_piece(piece_counter, tile.value.kind) : false;
+
+                        while (!tile.some || !piece_allowed) {
+                            if (!piece_allowed) {
+                                printf("Vous n'avez plus de %s à jouer: ", nom_piece);
+                                piece_allowed = true;
+                            } else {
+                                printf("Pièce inconnue: ");
+                            }
+                            scanf("%9s", nom_piece);
+                            tile = deserialize_tile(nom_piece, current_player_str, "", true);
+
+                            if (tile.some) {
+                                piece_allowed = add_piece(piece_counter, tile.value.kind);
+                            }
+                        }
+
+                        const uint8_t dim = game_state->board.dim;
+                        uint8_t x = dim;
+                        uint8_t y = dim;
+
+                        while (x >= dim || y >= dim) {
+                            char target_tile[4];
+                            printf("Où souhaitez-vous la placer ? ");
+                            scanf("%3s", target_tile);
+                            target_tile[0] = (char)toupper(target_tile[0]);
+
+                            if (!isdigit(target_tile[1])) {
+                                printf("Erreur : la ligne doit commencer par un chiffre (ex: A3).\n");
+                                continue;
+                            }
+
+                            if (target_tile[2] != '\0' && !isdigit(target_tile[2])) {
+                                printf("Erreur : mauvais format (ex: A3 ou A10).\n");
+                                continue;
+                            }
+
+                            const int row = (target_tile[2] == '\0')
+                                        ? (target_tile[1] - '0')
+                                        : ((target_tile[1] - '0') * 10 + (target_tile[2] - '0'));
+
+                            if (row < 0 || row > dim) {
+                                printf("Erreur : ligne invalide (max %u).\n", dim);
+                                continue;
+                            }
+
+                            x = toupper(target_tile[0]) - 'A';
+                            y = dim - row;
+
+                            if (x >= dim || y >= dim) {
+                                printf("Erreur : coordonnées hors des limites (%ux%u).\n", dim, dim);
+                                continue;
+                            }
+
+                            if (game_state->board.tiles[y][x].some) {
+                                printf("Erreur : Il y a déjà une pièce en %s.\n", target_tile);
+                                x = y = dim;
+                            }
+                        }
+
+                        tile.captured_by = player_option(game_state->is_turn_of);
+                        game_state->board.tiles[y][x] = tile;
+                        apply_conquest_capture(game_state, x, y, tile.value, game_state->is_turn_of);
+}
+
 // questions pour le prof
 // est-ce que les deux joueurs sont humains ou bien l'un est un bot ?
 int main(void) {
@@ -132,85 +209,11 @@ int main(void) {
 
                 switch (game_state.mode) {
                     case Conquest: {
-                        char nom_piece[10];
-                        printf("Quelle pièce souhaitez-vous jouer ? ");
-                        scanf("%9s", nom_piece);
-
-                        const char* current_player_str = stringify_player(game_state.is_turn_of);
-                        Tile tile = deserialize_tile(nom_piece, current_player_str, "", true);
-
-                        PieceCountTracker *piece_counter = (game_state.is_turn_of == User)
-                            ? &game_state.piece_counter_1
-                            : &game_state.piece_counter_2;
-
-                        bool piece_allowed = tile.some ? add_piece(piece_counter, tile.value.kind) : false;
-
-                        while (!tile.some || !piece_allowed) {
-                            if (!piece_allowed) {
-                                printf("Vous n'avez plus de %s à jouer: ", nom_piece);
-                                piece_allowed = true;
-                            } else {
-                                printf("Pièce inconnue: ");
-                            }
-                            scanf("%9s", nom_piece);
-                            tile = deserialize_tile(nom_piece, current_player_str, "", true);
-
-                            if (tile.some) {
-                                piece_allowed = add_piece(piece_counter, tile.value.kind);
-                            }
-                        }
-
-                        const uint8_t dim = game_state.board.dim;
-                        uint8_t x = dim;
-                        uint8_t y = dim;
-
-                        while (x >= dim || y >= dim) {
-                            char target_tile[4];
-                            printf("Où souhaitez-vous la placer ? ");
-                            scanf("%3s", target_tile);
-                            target_tile[0] = (char)toupper(target_tile[0]);
-
-                            if (!isdigit(target_tile[1])) {
-                                printf("Erreur : la ligne doit commencer par un chiffre (ex: A3).\n");
-                                continue;
-                            }
-
-                            if (target_tile[2] != '\0' && !isdigit(target_tile[2])) {
-                                printf("Erreur : mauvais format (ex: A3 ou A10).\n");
-                                continue;
-                            }
-
-                            const int row = (target_tile[2] == '\0')
-                                        ? (target_tile[1] - '0')
-                                        : ((target_tile[1] - '0') * 10 + (target_tile[2] - '0'));
-
-                            if (row < 0 || row > dim) {
-                                printf("Erreur : ligne invalide (max %u).\n", dim);
-                                continue;
-                            }
-
-                            x = toupper(target_tile[0]) - 'A';
-                            y = dim - row;
-
-                            if (x >= dim || y >= dim) {
-                                printf("Erreur : coordonnées hors des limites (%ux%u).\n", dim, dim);
-                                continue;
-                            }
-
-                            if (game_state.board.tiles[y][x].some) {
-                                printf("Erreur : Il y a déjà une pièce en %s.\n", target_tile);
-                                x = y = dim;
-                            }
-                        }
-
-                        tile.captured_by = player_option(game_state.is_turn_of);
-                        game_state.board.tiles[y][x] = tile;
-                        apply_conquest_capture(&game_state, x, y, tile.value, game_state.is_turn_of);
-
+                        play_conquest_turn(&game_state);
                         break;
                     }
                     case Connect: {
-
+                        play_conquest_turn(&game_state);
                         break;
                     }
                     default:
