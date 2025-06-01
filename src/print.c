@@ -11,7 +11,7 @@ void print_effect(const char* str, const unsigned int delay_ms) {
 }
 
 void print_text(const char* str) {
-    print_effect(str, 15);
+    print_effect(str, 10);
 }
 
 // void erase_effect(const char* str, const unsigned int delay_ms) {

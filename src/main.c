@@ -134,7 +134,6 @@ int main(void) {
                     case Conquest: {
                         char nom_piece[10];
                         printf("Quelle pièce souhaitez-vous jouer ? ");
-                        // TODO! supporter les pièces avec des majuscules/minuscules dans le nom
                         scanf("%9s", nom_piece);
 
                         const char* current_player_str = stringify_player(game_state.is_turn_of);
@@ -165,17 +164,11 @@ int main(void) {
                         uint8_t x = dim;
                         uint8_t y = dim;
 
-                        // TODO: gros probleme, exit automatique parfois lorsque l'utilisateur entre le case ou il veut placer la pièce
-
                         while (x >= dim || y >= dim) {
                             char target_tile[4];
                             printf("Où souhaitez-vous la placer ? ");
                             scanf("%3s", target_tile);
-
-                            if (!isupper(target_tile[0])) {
-                                printf("Erreur : le premier caractère doit être une lettre (ex: A3).\n");
-                                continue;
-                            }
+                            target_tile[0] = (char)toupper(target_tile[0]);
 
                             if (!isdigit(target_tile[1])) {
                                 printf("Erreur : la ligne doit commencer par un chiffre (ex: A3).\n");

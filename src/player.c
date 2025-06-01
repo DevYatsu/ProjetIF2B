@@ -6,7 +6,7 @@ PlayerOption no_player() {
     return (PlayerOption){ .some = false };
 }
 
-PlayerOption player_option(Player player) {
+PlayerOption player_option(const Player player) {
     return (PlayerOption){ .some = true, .player = player };
 }
 

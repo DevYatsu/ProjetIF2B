@@ -26,7 +26,7 @@ uint8_t get_captured_count_of(const GameState* state, const Player player) {
     return count;
 }
 
-void apply_conquest_capture(GameState* state, uint8_t x, uint8_t y, ChessPiece piece, Player capturer) {
+void apply_conquest_capture(const GameState* state, const uint8_t x, const uint8_t y, const ChessPiece piece, const Player capturer) {
     const uint8_t dim = state->board.dim;
     Tile* center = &state->board.tiles[y][x];
     // la case sur laquelle est la pièce est capturée
@@ -39,8 +39,8 @@ void apply_conquest_capture(GameState* state, uint8_t x, uint8_t y, ChessPiece p
                 {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
             };
             for (int i = 0; i < 8; i++) {
-                int nx = x + offsets[i][0];
-                int ny = y + offsets[i][1];
+                const int nx = x + offsets[i][0];
+                const int ny = y + offsets[i][1];
                 if (nx < dim && ny < dim) {
                     Tile* t = &state->board.tiles[ny][nx];
                     if (!t->some || t->value.player == capturer)
@@ -50,22 +50,20 @@ void apply_conquest_capture(GameState* state, uint8_t x, uint8_t y, ChessPiece p
             break;
         }
 
-        case Queen:
-        case Rook:
-        case Bishop: {
+        case Queen | Rook | Bishop: {
             const int directions[8][2] = {
                 {-1, 0}, {1, 0}, {0, -1}, {0, 1},     // rook
                 {-1, -1}, {-1, 1}, {1, -1}, {1, 1}    // bishop
             };
 
             for (int d = 0; d < 8; d++) {
-                // skip diagonals for rook
+                // on skip les diagonaless pour la tour
                 if (piece.kind == Rook && d >= 4) continue;
-                // skip straight lines for bishop
+                // on skip les lignes pour le fou
                 if (piece.kind == Bishop && d < 4) continue;
 
-                int dx = directions[d][0];
-                int dy = directions[d][1];
+                const int dx = directions[d][0];
+                const int dy = directions[d][1];
                 uint8_t cx = x, cy = y;
 
                 while (true) {
@@ -90,8 +88,8 @@ void apply_conquest_capture(GameState* state, uint8_t x, uint8_t y, ChessPiece p
                 {-2, -1}, {-1, -2}, {1, -2}, {2, -1}
             };
             for (int i = 0; i < 8; i++) {
-                int nx = x + jumps[i][0];
-                int ny = y + jumps[i][1];
+                const int nx = x + jumps[i][0];
+                const int ny = y + jumps[i][1];
                 if (nx < dim && ny < dim) {
                     Tile* t = &state->board.tiles[ny][nx];
                     if (!t->some || t->value.player == capturer)
@@ -103,19 +101,25 @@ void apply_conquest_capture(GameState* state, uint8_t x, uint8_t y, ChessPiece p
 
         case Pawn: {
             // Pions capturent uniquement en diagonale
-            int forward = (capturer == User) ? -1 : 1;
-            int dirs[2][2] = {
+            const int forward = (capturer == User) ? -1 : 1;
+            const int dirs[2][2] = {
                 {forward, -1}, {forward, 1}
             };
             for (int i = 0; i < 2; i++) {
-                int nx = x + dirs[i][1];
-                int ny = y + dirs[i][0];
-                if (nx < dim && ny < dim) {
+                const int nx = x + dirs[i][1];
+                const int ny = y + dirs[i][0];
+
+                if (nx >= 0 && ny >= 0 && nx < dim && ny < dim) {
                     Tile* t = &state->board.tiles[ny][nx];
-                    if (!t->some || t->value.player == capturer)
+                    if (!t->some || t->value.player == capturer) {
                         t->captured_by = player_option(capturer);
+                    }
                 }
             }
+            break;
+        }
+        default: {
+            // unreachable
             break;
         }
     }
@@ -205,8 +209,9 @@ void print_board(const GameState* state) {
                     case 0: printf(" %s", p.line1); break;
                     case 1: printf(" %s", p.line2); break;
                     case 2: printf(" %s", p.line3); break;
-                    default: // unreachable
-                        exit(EXIT_FAILURE);
+                    default:
+                        // unreachable
+                        ;
                 }
             }
 

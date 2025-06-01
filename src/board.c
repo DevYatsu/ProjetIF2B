@@ -65,9 +65,9 @@ Tile deserialize_tile(const char* piece_str, const char* player_str, const char*
     // Normaliser la chaîne de caractères pour la pièce
     // ex: "King" -> "King", "queen" -> "Queen", "ROi" -> "Roi"
     char piece[16];
-    piece[0] = toupper(piece_str[0]);
+    piece[0] = (char)toupper((unsigned char)piece_str[0]);
     for (size_t i = 1; i < strlen(piece_str) && i < sizeof(piece) - 1; ++i) {
-        piece[i] = tolower(piece_str[i]);
+        piece[i] = (char)tolower((unsigned char)piece_str[i]);
     }
     piece[strlen(piece_str)] = '\0';
 

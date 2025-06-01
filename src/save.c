@@ -300,8 +300,8 @@ GameState deserialize(const char* str) {
             "Nombre de pièces capturées dépassant les limites autorisées"
         };
 
-        fprintf(stderr, "Erreur de désérialisation : %s\n", error_messages[result]);
-        exit(1);
+        printf("Erreur de désérialisation : %s\n", error_messages[result]);
+        exit(EXIT_FAILURE);
     }
 
     return state;
@@ -362,7 +362,7 @@ GameState load_game() {
     buffer[total_read] = '\0';
     fclose(file);
 
-    GameState state = deserialize(buffer);
+    const GameState state = deserialize(buffer);
     free(buffer);
     return state;
 }
