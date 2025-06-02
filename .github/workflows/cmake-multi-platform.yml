@@ -4,10 +4,10 @@ name: CMake on multiple platforms
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ $default-branch ]
     tags: [ 'v*' ]  # Trigger on version tags
   pull_request:
-    branches: [ "master" ]
+    branches: [ $default-branch ]
 
 jobs:
   build:
@@ -17,39 +17,85 @@ jobs:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
 
-      # Set up a matrix to run the following 3 configurations:
-      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
-      # 2. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
-      # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
+      # Set up a matrix to run the following configurations:
+      # 1. <Windows, Release, latest MSVC compiler toolchain>
+      # 2. <Linux, Release, latest GCC compiler toolchain>
+      # 3. <Linux, Release, latest Clang compiler toolchain>
+      # 4. <macOS, Release, latest Clang compiler toolchain (Apple Clang)>
+      # 5. <macOS, Release, latest GCC compiler toolchain (via Homebrew)>
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest, macos-13]
         build_type: [Release]
         c_compiler: [gcc, clang, cl]
         include:
+          # Windows MSVC
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
-            artifact_name: windows-msvc
+            artifact_name: windows-x64-msvc
+
+          # Linux GCC (most popular for Linux)
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
-            artifact_name: linux-gcc
+            artifact_name: linux-x64-gcc
+
+          # Linux Clang
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
-            artifact_name: linux-clang
+            artifact_name: linux-x64-clang
+
+          # macOS Apple Clang (most popular for macOS)
+          - os: macos-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+            artifact_name: macos-arm64-clang
+
+          # macOS Intel (for compatibility with older Macs)
+          - os: macos-13
+            c_compiler: clang
+            cpp_compiler: clang++
+            artifact_name: macos-x64-clang
+
+          # macOS GCC (alternative compiler)
+          - os: macos-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+            artifact_name: macos-arm64-gcc
+
         exclude:
+          # Windows doesn't support GCC/Clang in this setup
           - os: windows-latest
             c_compiler: gcc
           - os: windows-latest
             c_compiler: clang
+
+          # Linux doesn't support MSVC
           - os: ubuntu-latest
             c_compiler: cl
 
+          # macOS doesn't support MSVC
+          - os: macos-latest
+            c_compiler: cl
+          - os: macos-13
+            c_compiler: cl
+
+          # Remove the extra GCC combination for macOS-13 to avoid duplication
+          - os: macos-13
+            c_compiler: gcc
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up GCC on macOS
+        if: runner.os == 'macOS' && matrix.c_compiler == 'gcc'
+        run: |
+          brew install gcc
+          echo "CC=gcc-13" >> $GITHUB_ENV
+          echo "CXX=g++-13" >> $GITHUB_ENV
 
       - name: Set reusable strings
         # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -108,14 +154,13 @@ jobs:
           # Create ZIP archive
           Compress-Archive -Path "package/*" -DestinationPath "${{ matrix.artifact_name }}.zip" -Force
 
-      - name: Package binaries (Linux)
-        if: runner.os == 'Linux'
+      - name: Package binaries (Linux/macOS)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         shell: bash
         run: |
           # Create a directory for packaging
           mkdir -p package
           
-          # Convert Windows-style path to Unix-style for find command
           BUILD_DIR="${{ steps.strings.outputs.build-output-dir }}"
           echo "Searching in build directory: $BUILD_DIR"
           
@@ -125,11 +170,20 @@ jobs:
             exit 1
           fi
           
-          # Find executable files (no extension typically)
-          find "$BUILD_DIR" -type f -executable -exec file {} \; | grep -E "(ELF|executable)" | cut -d: -f1 | while read -r exe; do
-            echo "Found executable: $exe"
-            cp "$exe" package/
-          done
+          # Find executable files
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            # macOS: Find Mach-O executables
+            find "$BUILD_DIR" -type f -perm +111 -exec file {} \; | grep -E "(Mach-O.*executable|Mach-O 64-bit executable)" | cut -d: -f1 | while read -r exe; do
+              echo "Found executable: $exe"
+              cp "$exe" package/
+            done
+          else
+            # Linux: Find ELF executables
+            find "$BUILD_DIR" -type f -executable -exec file {} \; | grep -E "(ELF|executable)" | cut -d: -f1 | while read -r exe; do
+              echo "Found executable: $exe"
+              cp "$exe" package/
+            done
+          fi
           
           # List what we're packaging
           echo "Files to package:"
