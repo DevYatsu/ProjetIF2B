@@ -87,28 +87,34 @@ jobs:
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
-        with:
-          path: artifacts
+
+      - name: List downloaded artifacts
+        run: |
+          echo "Current directory contents:"
+          ls -la
+          echo "Looking for artifact directories:"
+          find . -type d -name "*-*-*" | head -10
 
       - name: Create release archives
         run: |
           mkdir -p release
-          cd artifacts
-          for dir in */; do
+          for dir in *-*-*/; do
             if [ -d "$dir" ]; then
               echo "Processing $dir"
               cd "$dir"
               # Create tar.gz for Linux builds
               if [[ "$dir" == *"ubuntu"* ]]; then
-                tar -czf "../../release/${dir%/}.tar.gz" *
+                tar -czf "../release/${dir%/}.tar.gz" *
               fi
               # Create zip for Windows builds
               if [[ "$dir" == *"windows"* ]]; then
-                zip -r "../../release/${dir%/}.zip" *
+                zip -r "../release/${dir%/}.zip" *
               fi
               cd ..
             fi
           done
+          echo "Release files created:"
+          ls -la release/
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
