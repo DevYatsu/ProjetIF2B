@@ -83,10 +83,6 @@ int main(void) {
   // on skip pr le moment c'est trop long
   print_title_screen();
 
-  while (getchar() != '\n') {
-      // Attendre que l'utilisateur appuie sur une touche
-  }
-
   const StartOption option = select_option();
   clear_screen();
 

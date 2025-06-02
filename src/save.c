@@ -9,9 +9,9 @@
 const char *FILENAME = "savegame.dat";
 
 const int MAX_GAME_STATE_STR_LEN =
-    strlen("Conquest ") + // longueur du plus grand entre Conquest et Connect
-    strlen("User ") +     // longueur du plus grand entre User et AI
-    3 +                   // longueur de dim (2 digits et  un espace)
+    9 +                   // strlen("Conquest ")
+    5 +                   // strlen("User ")
+    3 +                   // longueur de dim (2 digits et un espace)
     (12 * 12 * 10) +      // 12 (max dim) et 10 pour chaque piece
     100;                  // securité
 
