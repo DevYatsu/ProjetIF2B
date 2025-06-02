@@ -1,295 +1,151 @@
-name: CMake Build Matrix
+# This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
+name: CMake on multiple platforms
 
 on:
   push:
-    branches: [ "master" ]
-    tags: [ "v*" ]
+    branches: [ $default-branch ]
+    tags: [ 'v*' ]  # Trigger on version tags
   pull_request:
-    branches: [ "master" ]
-
-env:
-  CMAKE_VERSION: "3.31"
-  NINJA_VERSION: "1.12.1"
-  BUILD_TYPE: Release
-  CCACHE_VERSION: "4.10.2"
+    branches: [ $default-branch ]
 
 jobs:
   build:
-    name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
-    outputs:
-      tag: ${{ steps.git.outputs.tag }}
+    runs-on: ${{ matrix.os }}
+
     strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
+
+      # Set up a matrix to run the following 3 configurations:
+      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
+      # 2. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
+      # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
+      #
+      # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        config:
-          - {
-            name: "Windows Latest MSVC", artifact: "Windows-MSVC",
-            os: windows-latest,
-            cc: "cl", cxx: "cl",
-            environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
-          }
-          - {
-            name: "Windows Latest MinGW", artifact: "Windows-MinGW",
-            os: windows-latest,
-            cc: "gcc", cxx: "g++"
-          }
-          - {
-            name: "Ubuntu Latest GCC", artifact: "Linux-GCC",
-            os: ubuntu-latest,
-            cc: "gcc", cxx: "g++"
-          }
-          - {
-            name: "Ubuntu Latest Clang", artifact: "Linux-Clang",
-            os: ubuntu-latest,
-            cc: "clang", cxx: "clang++"
-          }
-          - {
-            name: "macOS Latest Clang", artifact: "macOS",
-            os: macos-latest,
-            cc: "clang", cxx: "clang++"
-          }
+        os: [ubuntu-latest, windows-latest]
+        build_type: [Release]
+        c_compiler: [gcc, clang, cl]
+        include:
+          - os: windows-latest
+            c_compiler: cl
+            cpp_compiler: cl
+            artifact_name: windows-msvc
+          - os: ubuntu-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+            artifact_name: linux-gcc
+          - os: ubuntu-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+            artifact_name: linux-clang
+        exclude:
+          - os: windows-latest
+            c_compiler: gcc
+          - os: windows-latest
+            c_compiler: clang
+          - os: ubuntu-latest
+            c_compiler: cl
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Extract tag name
-        id: git
+      - name: Set reusable strings
+        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+        id: strings
         shell: bash
         run: |
-          if [[ ${{ github.ref }} =~ refs/tags/v(.+) ]]; then
-            echo "tag=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
-          else
-            echo "tag=${{ github.run_id }}" >> $GITHUB_OUTPUT
-          fi
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-      - name: Download Ninja and CMake
-        shell: cmake -P {0}
-        run: |
-          set(cmake_version $ENV{CMAKE_VERSION})
-          set(ninja_version $ENV{NINJA_VERSION})
-          
-          message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
-          
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(ninja_suffix "win.zip")
-            set(cmake_suffix "windows-x86_64.zip")
-            set(cmake_dir "cmake-${cmake_version}-windows-x86_64/bin")
-          elseif ("${{ runner.os }}" STREQUAL "Linux")
-            set(ninja_suffix "linux.zip")
-            set(cmake_suffix "linux-x86_64.tar.gz")
-            set(cmake_dir "cmake-${cmake_version}-linux-x86_64/bin")
-          elseif ("${{ runner.os }}" STREQUAL "macOS")
-            set(ninja_suffix "mac.zip")
-            set(cmake_suffix "macos-universal.tar.gz")
-            set(cmake_dir "cmake-${cmake_version}-macos-universal/CMake.app/Contents/bin")
-          endif()
-          
-          set(ninja_url "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-${ninja_suffix}")
-          file(DOWNLOAD "${ninja_url}" ./ninja.zip SHOW_PROGRESS)
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ninja.zip)
-          
-          set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
-          file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./cmake.zip)
-          
-          # Add to PATH environment variable
-          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}" cmake_dir)
-          set(path_separator ":")
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(path_separator ";")
-          endif()
-          file(APPEND "$ENV{GITHUB_PATH}" "$ENV{GITHUB_WORKSPACE}${path_separator}${cmake_dir}")
-          
-          if (NOT "${{ runner.os }}" STREQUAL "Windows")
-            execute_process(
-              COMMAND chmod +x ninja
-              COMMAND chmod +x ${cmake_dir}/cmake
-            )
-          endif()
-
-      - name: Download ccache
-        id: ccache
-        shell: cmake -P {0}
-        run: |
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(ccache_dir "ccache-$ENV{CCACHE_VERSION}-windows-x86_64")
-            set(ccache_archive "${ccache_dir}.zip")
-          elseif ("${{ runner.os }}" STREQUAL "Linux")
-            set(ccache_dir "ccache-$ENV{CCACHE_VERSION}-linux-x86_64")
-            set(ccache_archive "${ccache_dir}.tar.xz")
-          elseif ("${{ runner.os }}" STREQUAL "macOS")
-            set(ccache_dir "ccache-$ENV{CCACHE_VERSION}-darwin")
-            set(ccache_archive "${ccache_dir}.tar.gz")
-          endif()
-          
-          set(ccache_url "https://github.com/ccache/ccache/releases/download/v$ENV{CCACHE_VERSION}/${ccache_archive}")
-          file(DOWNLOAD "${ccache_url}" ./${ccache_archive} SHOW_PROGRESS)
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./${ccache_archive})
-          
-          # Add to PATH environment variable
-          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${ccache_dir}" ccache_dir)
-          set(path_separator ":")
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(path_separator ";")
-          endif()
-          file(APPEND "$ENV{GITHUB_PATH}" "$ENV{GITHUB_WORKSPACE}${path_separator}${ccache_dir}")
-          
-          if (NOT "${{ runner.os }}" STREQUAL "Windows")
-            execute_process(COMMAND chmod +x ${ccache_dir}/ccache)
-          endif()
-
-      - name: Prepare ccache timestamp
-        id: ccache_cache_timestamp
-        shell: cmake -P {0}
-        run: |
-          string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
-          file(APPEND "$ENV{GITHUB_OUTPUT}" "timestamp=${current_date}")
-
-      - name: ccache cache files
-        uses: actions/cache@v4
-        with:
-          path: .ccache
-          key: ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
-          restore-keys: |
-            ${{ matrix.config.name }}-ccache-
-
-      - name: Configure
-        shell: cmake -P {0}
-        run: |
-          set(ENV{CC} ${{ matrix.config.cc }})
-          set(ENV{CXX} ${{ matrix.config.cxx }})
-          
-          if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
-            execute_process(
-              COMMAND cmd /c "${{ matrix.config.environment_script }}" "&&" set
-              OUTPUT_FILE environment_script_output.txt
-            )
-            file(STRINGS environment_script_output.txt output_lines)
-            foreach(line IN LISTS output_lines)
-              if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
-                set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
-              endif()
-            endforeach()
-          endif()
-          
-          set(path_separator ":")
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(path_separator ";")
-          endif()
-          set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
-          
-          execute_process(
-            COMMAND cmake
-              -S .
-              -B build
-              -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
-              -G Ninja
-              -D CMAKE_MAKE_PROGRAM=ninja
-              -D CMAKE_C_COMPILER_LAUNCHER=ccache
-              -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
-            RESULT_VARIABLE result
-          )
-          if (NOT result EQUAL 0)
-            message(FATAL_ERROR "Bad exit status")
-          endif()
+      - name: Configure CMake
+        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -S ${{ github.workspace }}
 
       - name: Build
-        shell: cmake -P {0}
-        run: |
-          set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
-          
-          if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
-            file(STRINGS environment_script_output.txt output_lines)
-            foreach(line IN LISTS output_lines)
-              if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
-                set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
-              endif()
-            endforeach()
-          endif()
-          
-          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" ccache_basedir)
-          set(ENV{CCACHE_BASEDIR} "${ccache_basedir}")
-          set(ENV{CCACHE_DIR} "${ccache_basedir}/.ccache")
-          set(ENV{CCACHE_COMPRESS} "true")
-          set(ENV{CCACHE_COMPRESSLEVEL} "6")
-          set(ENV{CCACHE_MAXSIZE} "400M")
-          if ("${{ matrix.config.cxx }}" STREQUAL "cl")
-            set(ENV{CCACHE_MAXSIZE} "600M")
-          endif()
-          
-          execute_process(COMMAND ccache -p)
-          execute_process(COMMAND ccache -z)
-          
-          execute_process(
-            COMMAND cmake --build build
-            RESULT_VARIABLE result
-            OUTPUT_VARIABLE output
-            ERROR_VARIABLE output
-            ECHO_OUTPUT_VARIABLE ECHO_ERROR_VARIABLE
-          )
-          if (NOT result EQUAL 0)
-            string(REGEX MATCH "FAILED:.*$" error_message "${output}")
-            string(REPLACE "\n" "%0A" error_message "${error_message}")
-            message("::error::${error_message}")
-            message(FATAL_ERROR "Build failed")
-          endif()
+        # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
-      - name: ccache statistics
-        shell: cmake -P {0}
+      - name: Test
+        working-directory: ${{ steps.strings.outputs.build-output-dir }}
+        # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+        run: ctest --build-config ${{ matrix.build_type }}
+
+      - name: Package binaries
+        shell: bash
         run: |
-          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" ccache_basedir)
-          set(ENV{CCACHE_BASEDIR} "${ccache_basedir}")
-          set(ENV{CCACHE_DIR} "${ccache_basedir}/.ccache")
+          # Create a directory for packaging
+          mkdir -p package
           
-          execute_process(COMMAND ccache -s)
-
-      - name: Install Strip
-        run: |
-          mkdir -p instdir
-          cmake --install build --prefix instdir --strip
-
-      - name: Pack
-        run: |
-          if [ -d "instdir" ] && [ "$(ls -A instdir)" ]; then
-            cd instdir
-            cmake -E tar cfv ../${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z --format=7zip .
+          # Copy binaries (adjust paths based on your CMake output structure)
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            # For Windows, executables typically have .exe extension
+            find ${{ steps.strings.outputs.build-output-dir }} -name "*.exe" -type f -executable -exec cp {} package/ \;
+            # Also copy any DLLs if present
+            find ${{ steps.strings.outputs.build-output-dir }} -name "*.dll" -type f -exec cp {} package/ \;
           else
-            echo "Error: instdir is empty or doesn't exist"
-            exit 1
+            # For Linux, find executable files (no extension typically)
+            find ${{ steps.strings.outputs.build-output-dir }} -type f -executable -exec file {} \; | grep -E "(ELF|executable)" | cut -d: -f1 | xargs cp -t package/
+          fi
+          
+          # Create archive
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            7z a ${{ matrix.artifact_name }}.zip package/*
+          else
+            tar -czf ${{ matrix.artifact_name }}.tar.gz -C package .
           fi
 
-      - name: Upload
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: ./${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
-          name: ${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
+          name: ${{ matrix.artifact_name }}
+          path: |
+            ${{ matrix.artifact_name }}.zip
+            ${{ matrix.artifact_name }}.tar.gz
+          retention-days: 30
 
   release:
-    if: contains(github.ref, 'tags/v')
-    runs-on: ubuntu-latest
     needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')  # Only run on version tags
     permissions:
       contents: write
 
     steps:
-      - name: Download artifacts
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: release-with-dirs
-
-      - name: Fixup artifacts
-        run: |
-          mkdir release
-          find release-with-dirs -name "*.7z" -exec mv {} release/ \;
+          path: artifacts
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        id: create_release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ needs.build.outputs.tag }}
-          files: release/*
-          generate_release_notes: true
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
           draft: false
-          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+          prerelease: false
+
+      - name: Upload Release Assets
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for artifact_dir in artifacts/*/; do
+            artifact_name=$(basename "$artifact_dir")
+            for file in "$artifact_dir"*; do
+              if [ -f "$file" ]; then
+                echo "Uploading $file"
+                gh release upload ${{ github.ref_name }} "$file" --repo ${{ github.repository }}
+              fi
+            done
+          done
