@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "capture.h"
 
 /**
  * @brief Demande et valide une entrée utilisateur dans une plage de caractères.

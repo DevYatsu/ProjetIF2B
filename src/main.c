@@ -3,11 +3,10 @@
 #include "print.h"
 #include "save.h"
 #include "select.h"
-#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
+#include "capture.h"
 
 void print_bye() {
   // cf https://emojicombos.com/bye-ascii-art
@@ -79,20 +78,14 @@ void play_connect_turn(GameState *game_state) {
   }
 }
 
-// questions pour le prof
-// est-ce que les deux joueurs sont humains ou bien l'un est un bot ?
 int main(void) {
   srand(time(0));
   // on skip pr le moment c'est trop long
-  // print_title_screen();
+  print_title_screen();
 
-  // print_effect("=== Appuyez sur <Entrer> pour continuer ===  ", 50);
-  //
-  // while (getchar() != '\n') {
-  //     // Attendre que l'utilisateur appuie sur une touche
-  // }
-  //
-  // erase_effect("\n=== Appuyez sur une touche pour continuer ===  ", 25);
+  while (getchar() != '\n') {
+      // Attendre que l'utilisateur appuie sur une touche
+  }
 
   const StartOption option = select_option();
   clear_screen();

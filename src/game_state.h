@@ -49,40 +49,6 @@ typedef struct {
  */
 GameState init_game_state(GameMode mode, uint8_t dim);
 
-/**
- * @brief Checks if there is a tile of a given kind captured by the current
- * player.
- *
- * Iterates over the board to find if any tile contains a piece of the specified
- * kind and is marked as captured by the player whose turn it is.
- *
- * @param state Pointer to the current game state.
- * @param x Unused parameter (reserved for future use or interface
- * compatibility).
- * @param y Unused parameter (reserved for future use or interface
- * compatibility).
- * @param required_kind The kind of piece to check for.
- * @return true if such a tile exists, false otherwise.
- */
-bool is_tile_captured_by_kind(const GameState *state, uint8_t x, uint8_t y,
-                              PieceKind required_kind);
-
-/**
- * @brief Applique la capture de pièces selon les règles du mode Conquest.
- *
- * Lorsque le joueur capturant place une pièce sur une case occupée,
- * toutes les pièces adjacentes (selon les règles de capture) sont capturées.
- *
- * @param state Pointeur vers l'état du jeu actuel.
- * @param x Coordonnée x de la case où la pièce est placée.
- * @param y Coordonnée y de la case où la pièce est placée.
- * @param piece La pièce qui est placée sur le plateau.
- * @param capturer Le joueur qui effectue la capture.
- */
-void apply_conquest_capture(const GameState *state, uint8_t x, uint8_t y,
-                            ChessPiece piece, Player capturer);
-
-bool is_tile_captured_by_piece_kind(const GameState *state, uint8_t x, uint8_t y, PieceKind kind);
 
 /**
  * @brief Renvoie le nombre de pièces capturées par un joueur spécifique.

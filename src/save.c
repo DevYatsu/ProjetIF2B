@@ -147,6 +147,7 @@ static DeserializeResult parse_tiles(const char *tiles_str, GameState *state,
 
       // Découper tile_buf en 3 parties : piece, owner, captured
       char *piece_str = strtok(tile_buffer, ":");
+      // se souvient de la chaine gràce à un pointeur static
       char *owner_str = strtok(NULL, ":");
       char *captured_str = strtok(NULL, ":");
 
@@ -185,6 +186,7 @@ DeserializeResult deserialize_safe(const char *str, GameState *state) {
   memset(state, 0, sizeof(GameState));
 
   // Dupliquer la chaîne pour éviter de modifier l'original
+  // car strtok risque de la modifier
   char *dup = strdup(str);
   if (!dup) {
     return DESERIALIZE_MEMORY_ERROR;
