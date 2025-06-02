@@ -98,23 +98,44 @@ jobs:
       - name: Create release archives
         run: |
           mkdir -p release
-          for dir in *-*-*/; do
-            if [ -d "$dir" ]; then
-              echo "Processing $dir"
-              cd "$dir"
-              # Create tar.gz for Linux builds
-              if [[ "$dir" == *"ubuntu"* ]]; then
-                tar -czf "../release/${dir%/}.tar.gz" *
+          echo "Looking for artifact directories..."
+          ls -la
+          
+          # Process each artifact directory
+          for item in *; do
+            if [ -d "$item" ] && [[ "$item" == *"-"*"-"* ]]; then
+              echo "Processing directory: $item"
+              echo "Contents of $item:"
+              ls -la "$item"
+          
+              cd "$item"
+          
+              # Check if there are any files
+              if [ "$(ls -A .)" ]; then
+                # Create tar.gz for Linux builds
+                if [[ "$item" == *"ubuntu"* ]]; then
+                  echo "Creating tar.gz for $item"
+                  tar -czf "../release/${item}.tar.gz" *
+                fi
+                # Create zip for Windows builds  
+                if [[ "$item" == *"windows"* ]]; then
+                  echo "Creating zip for $item"
+                  zip -r "../release/${item}.zip" *
+                fi
+              else
+                echo "Directory $item is empty"
               fi
-              # Create zip for Windows builds
-              if [[ "$dir" == *"windows"* ]]; then
-                zip -r "../release/${dir%/}.zip" *
-              fi
+          
               cd ..
             fi
           done
-          echo "Release files created:"
-          ls -la release/
+          
+          echo "Release directory contents:"
+          ls -la release/ || echo "Release directory is empty or doesn't exist"
+          
+          # Also try to find any executable files directly
+          echo "Looking for executable files:"
+          find . -type f -executable -not -path "./release/*" || echo "No executable files found"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
