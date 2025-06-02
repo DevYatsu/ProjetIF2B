@@ -56,16 +56,10 @@ jobs:
             c_compiler: clang
           - os: ubuntu-latest
             c_compiler: cl
-          # macOS GCC (alternative compiler)
           - os: macos-latest
             c_compiler: gcc
-            cpp_compiler: g++
-            artifact_name: macos-arm64-gcc
-          # Linux Clang
           - os: ubuntu-latest
             c_compiler: clang
-            cpp_compiler: clang++
-            artifact_name: linux-x64-clang
 
     steps:
       - uses: actions/checkout@v4
