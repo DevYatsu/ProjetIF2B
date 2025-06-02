@@ -194,6 +194,7 @@ int main(void) {
 
   if (game_stopped) {
     clear_screen();
+    sleep_ms(500);
     print_bye();
     return 0;
   }
