@@ -1,4 +1,3 @@
-
 #ifndef CAPTURE_H
 #define CAPTURE_H
 #include "game_state.h"

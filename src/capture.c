@@ -49,7 +49,7 @@ static void capture_rook_moves(const GameState* state, uint8_t x, uint8_t y, Pla
 static void capture_bishop_moves(const GameState* state, uint8_t x, uint8_t y, Player capturer) {
   const uint8_t dim = state->board.dim;
   const int directions[4][2] = {
-    {-1, -1}, {-1, 1}, {1, -1}, {1, 1} // diagonals
+    {-1, -1}, {-1, 1}, {1, -1}, {1, 1} // diagonales
   };
 
   for (int d = 0; d < 4; ++d) {
