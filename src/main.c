@@ -1,82 +1,12 @@
 #include "game_state.h"
-#include "piece.h"
 #include "print.h"
 #include "save.h"
 #include "select.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
 #include "capture.h"
-
-void print_bye() {
-  // cf https://emojicombos.com/bye-ascii-art
-  puts("⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡤⠒⠒⠢⢄⡀⠀⠀⢠⡏⠉⠉⠉⠑⠒⠤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-  puts("⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡞⠀⠀⠀⠀⠀⠙⢦⠀⡇⡇⠀⠀⠀⠀⠀⠀⠈⠱⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-  puts("⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠊⠉⠉⠙⠒⢤⡀⠀⣼⠀⠀⢀⣶⣤⠀⠀⠀⢣⡇⡇⠀⠀⢴⣶⣦⠀⠀⠀⢳⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-  puts("⠀⠀⠀⢀⣠⠤⢄⠀⠀⢰⡇⠀⠀⣠⣀⠀⠀⠈⢦⡿⡀⠀⠈⡟⣟⡇⠀⠀⢸⡇⡆⠀⠀⡼⢻⣠⠀⠀⠀⣸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-  puts("⠀⢀⠖⠉⠀⠀⠀⣱⡀⡞⡇⠀⠀⣿⣿⢣⠀⠀⠈⣧⣣⠀⠀⠉⠋⠀⠀⠀⣸⡇⠇⠀⠀⠈⠉⠀⠀⠀⢀⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-  puts("⣠⠏⠀⠀⣴⢴⣿⣿⠗⢷⡹⡀⠀⠘⠾⠾⠀⠀⠀⣿⣿⣧⡀⠀⠀⠀⢀⣴⠇⣇⣆⣀⢀⣀⣀⣀⣀⣤⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-  puts("⣿⠀⠀⢸⢻⡞⠋⠀⠀⠀⢿⣷⣄⠀⠀⠀⠀⠀⣠⡇⠙⢿⣽⣷⣶⣶⣿⠋⢰⣿⣿⣿⣿⣿⣿⠿⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀");
-  puts("⡿⡄⠀⠈⢻⣝⣶⣶⠀⠀⠀⣿⣿⣱⣶⣶⣶⣾⡟⠀⠀⠀⢈⡉⠉⢩⡖⠒⠈⠉⡏⡴⡏⠉⠉⠉⠉⠉⠉⠉⠉⡇⠀⠀⢀⣴⠒⠢⠤⣀");
-  puts("⢣⣸⣆⡀⠀⠈⠉⠁⠀⠀⣠⣷⠈⠙⠛⠛⠛⠉⢀⣴⡊⠉⠁⠈⢢⣿⠀⠀⠀⢸⠡⠀⠁⠀⠀⠀⣠⣀⣀⣀⣀⡇⠀⢰⢁⡇⠀⠀⠀⢠");
-  puts("⠀⠻⣿⣟⢦⣤⡤⣤⣴⣾⡿⢃⡠⠔⠒⠉⠛⠢⣾⢿⣿⣦⡀⠀⠀⠉⠀⠀⢀⡇⢸⠀⠀⠀⠀⠀⠿⠿⠿⣿⡟⠀⢀⠇⢸⠀⠀⠀⠀⠘");
-  puts("⠀⠀⠈⠙⠛⠿⠿⠿⠛⠋⢰⡋⠀⠀⢠⣤⡄⠀⠈⡆⠙⢿⣿⣦⣀⠀⠀⠀⣜⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⢀⠃⠀⡸⠀⠇⠀⠀⠀⠀⠀");
-  puts("⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⢣⠀⠀⠈⠛⠁⠀⢴⠥⡀⠀⠙⢿⡿⡆⠀⠀⢸⠀⢸⢰⠀⠀⠀⢀⣿⣶⣶⡾⠀⢀⠇⣸⠀⠀⠀⠀⠀⠀");
-  puts("⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⡀⢇⠀⠀⠀⢀⡀⠀⠀⠈⢢⠀⠀⢃⢱⠀⠀⠀⡇⢸⢸⠀⠀⠀⠈⠉⠉⠉⢱⠀⠼⣾⣿⣿⣷⣦⠴⠀⠀");
-  puts("⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢱⠘⡄⠀⠀⢹⣿⡇⠀⠀⠈⡆⠀⢸⠈⡇⢀⣀⣵⢨⣸⣦⣤⣤⣄⣀⣀⣀⡞⠀⣠⡞⠉⠈⠉⢣⡀⠀⠀");
-  puts("⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢃⠘⡄⠀⠀⠉⠀⠀⣠⣾⠁⠀⠀⣧⣿⣿⡿⠃⠸⠿⣿⣿⣿⣿⣿⣿⠟⠁⣼⣾⠀⠀⠀⠀⢠⠇⠀⠀");
-  puts("⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡄⠹⣀⣀⣤⣶⣿⡿⠃⠀⠀⠀⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠁⠀⠀⢻⣿⣷⣦⣤⣤⠎⠀⠀⠀");
-  puts("⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣤⣿⡿⠟⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠀⠀⠀⠀⠀");
-}
-
-void print_title_screen() {
-  // cf https://ascii.co.uk/art/chess
-  clear_screen();
-
-  print_text("     | |\n");
-  print_text("  ___| |__   ___  ___ ___\n");
-  print_text(" / __| '_ \\ / _ \\/ __/ __|\n");
-  print_text("| (__| | | |  __/\\__ \\__ \\\n");
-  print_text(" \\___|_| |_|\\___||___/___/\n\n\n\n\n");
-
-  print_text("\n⚠️  Ce jeu est conçu pour être joué dans un vrai terminal.\n");
-  print_text("   Évitez d'utiliser la sortie CLion / IDE (Run) pour un "
-             "affichage correct.\n\n\n\n\n");
-
-  print_text("Appuyez sur <Entrer> pour commencer la partie.\n\n\n\n\n");
-
-  while (getchar() != '\n') {
-    // Attendre que l'utilisateur appuie sur une touche
-  }
-
-  clear_screen();
-}
-
-void play_conquest_turn(const GameState *game_state) {
-  Tile tile = select_valid_tile(game_state);
-  const TargetPosition pos = select_valid_target_position(game_state);
-
-  tile.captured_by = player_option(game_state->is_turn_of);
-  game_state->board.tiles[pos.y][pos.x] = tile;
-  apply_conquest_capture(game_state, pos.x, pos.y, tile.value, game_state->is_turn_of);
-}
-
-void play_connect_turn(GameState *game_state) {
-  Tile tile = select_valid_tile_for_connect(game_state);
-  const TargetPosition pos = select_valid_target_position_for_connect(game_state, &tile);
-
-  tile.captured_by = player_option(game_state->is_turn_of);
-  game_state->board.tiles[pos.y][pos.x] = tile;
-  apply_conquest_capture(game_state, pos.x, pos.y, tile.value, game_state->is_turn_of);
-
-  // La partie se termine dès qu'un joueur pose son roi
-  if (tile.value.kind == King) {
-    printf("Le roi a été placé par le joueur %s. La partie est terminée !\n",
-           stringify_player(game_state->is_turn_of));
-    set_all_to_zero(&game_state->piece_counter_1);
-    set_all_to_zero(&game_state->piece_counter_2);
-  }
-}
 
 int main(void) {
   srand(time(0));

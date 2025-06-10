@@ -30,4 +30,14 @@ void print_text(const char *str);
  */
 void clear_screen();
 
+/**
+ * @brief Affiche un message d'au revoir.
+ */
+void print_bye();
+
+/**
+ * @brief Affiche l'ecran d'accueil du jeu.
+ */
+void print_title_screen();
+
 #endif // PRINT_H

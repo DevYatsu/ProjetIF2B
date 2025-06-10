@@ -32,5 +32,22 @@ void apply_conquest_capture(const GameState *state, uint8_t x, uint8_t y,
  */
 bool is_tile_captured_by_piece_kind(const GameState *state, uint8_t x, uint8_t y, PieceKind kind);
 
+/// Joue un tour dans le mode "Conquest".
+///
+/// Ce mode consiste à sélectionner une pièce capturée, choisir une position valide
+/// où la poser, puis appliquer l'effet de capture de cette pièce.
+///
+/// @param game_state Pointeur vers l’état actuel du jeu.
+void play_conquest_turn(const GameState *game_state);
+
+/// Joue un tour dans le mode "Connect".
+///
+/// Ce mode est basé sur une logique de placement conditionnelle :
+/// la validité dépend des pièces déjà posées.
+/// Si un roi est placé, la partie prend fin immédiatement.
+///
+/// @param game_state Pointeur vers l’état actuel du jeu.
+void play_connect_turn(GameState *game_state);
+
 
 #endif //CAPTURE_H
