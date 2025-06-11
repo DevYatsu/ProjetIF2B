@@ -14,33 +14,37 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest, macos-13]
-        build_type: [Release]
-
         include:
+          # Windows MSVC
           - os: windows-latest
+            build_type: Release
             c_compiler: cl
             cpp_compiler: cl
             artifact_name: windows-x64-msvc
-
+          # Linux GCC
           - os: ubuntu-latest
+            build_type: Release
             c_compiler: gcc
             cpp_compiler: g++
             artifact_name: linux-x64-gcc
-
+          # Linux Clang
           - os: ubuntu-latest
+            build_type: Release
             c_compiler: clang
             cpp_compiler: clang++
             artifact_name: linux-x64-clang
-
+          # macOS Apple Clang (ARM64)
           - os: macos-latest
+            build_type: Release
             c_compiler: clang
             cpp_compiler: clang++
             artifact_name: macos-arm64-clang
-
+          # macOS Intel (x64)
           - os: macos-13
+            build_type: Release
             c_compiler: clang
             cpp_compiler: clang++
             artifact_name: macos-x64-clang
