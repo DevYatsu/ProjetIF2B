@@ -53,20 +53,65 @@ jobs:
         working-directory: build
         run: ctest --build-config Release
 
-      - name: Package
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path "package" -Force
+          Write-Host "Looking for Windows binaries to package..."
+          
+          # Find and copy executables
+          Get-ChildItem -Path "build" -Recurse -Include "*.exe" | ForEach-Object {
+            Write-Host "Found executable: $($_.FullName)"
+            Copy-Item $_.FullName -Destination "package/"
+          }
+          
+          # Find and copy DLLs
+          Get-ChildItem -Path "build" -Recurse -Include "*.dll" | ForEach-Object {
+            Write-Host "Found DLL: $($_.FullName)"
+            Copy-Item $_.FullName -Destination "package/"
+          }
+          
+          # List what we're packaging
+          Write-Host "Files to package:"
+          Get-ChildItem -Path "package/"
+          
+          # Create ZIP archive
+          if ((Get-ChildItem -Path "package/").Count -gt 0) {
+            Compress-Archive -Path "package/*" -DestinationPath "${{ matrix.artifact_name }}.zip" -Force
+            Write-Host "Created archive: ${{ matrix.artifact_name }}.zip"
+          } else {
+            Write-Host "No files found to package"
+            # Create empty zip
+            Compress-Archive -Path "package" -DestinationPath "${{ matrix.artifact_name }}.zip" -Force
+          }
+
+      - name: Package (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
         run: |
           mkdir -p package
-          echo "Looking for binaries to package..."
-
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            find build -name "*.exe" -exec cp {} package/ \;
-            find build -name "*.dll" -exec cp {} package/ \;
-            7z a ${{ matrix.artifact_name }}.zip ./package/*
-          else
-            find build -type f -perm +111 ! -name "*.a" ! -name "*.so*" ! -name "*.dylib*" | while read -r f; do
-              file "$f" | grep -qE "Mach-O|ELF|executable" && cp "$f" package/
-            done
+          echo "Looking for Unix binaries to package..."
+          
+          # Find executable files
+          find build -type f -perm +111 ! -name "*.a" ! -name "*.so*" ! -name "*.dylib*" 2>/dev/null | while read -r f; do
+            if file "$f" 2>/dev/null | grep -qE "Mach-O|ELF|executable"; then
+              echo "Found executable: $f"
+              cp "$f" package/
+            fi
+          done
+          
+          # List what we're packaging
+          echo "Files to package:"
+          ls -la package/
+          
+          # Create tar.gz archive
+          if [ "$(ls -A package/)" ]; then
             tar -czf ${{ matrix.artifact_name }}.tar.gz -C package .
+            echo "Created archive: ${{ matrix.artifact_name }}.tar.gz"
+          else
+            echo "No files found to package, creating empty archive"
+            tar -czf ${{ matrix.artifact_name }}.tar.gz -T /dev/null
           fi
 
       - name: Upload
@@ -94,6 +139,11 @@ jobs:
         with:
           path: artifacts
 
+      - name: List downloaded artifacts
+        run: |
+          echo "Downloaded artifacts:"
+          find artifacts -type f -ls
+
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -108,6 +158,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           for file in artifacts/*/*; do
-            echo "Uploading $file"
-            gh release upload ${{ github.ref_name }} "$file" --repo ${{ github.repository }}
+            if [ -f "$file" ]; then
+              echo "Uploading $file"
+              gh release upload ${{ github.ref_name }} "$file" --repo ${{ github.repository }}
+            fi
           done
