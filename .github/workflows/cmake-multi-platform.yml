@@ -126,16 +126,28 @@ jobs:
             exit 1
           fi
           
-          # Find executable files (no extension typically)
-          find "$BUILD_DIR" -type f -executable -exec file {} \; | grep -E "(ELF|Mach-O|executable)" | cut -d: -f1 | while read -r exe; do
-            echo "Found executable: $exe"
-            cp "$exe" package/
-          done
+          # Find executable files using different methods for Linux vs macOS
+          if [[ "$OSTYPE" == "darwin"* ]]; then
+            echo "Running on macOS, using macOS-compatible find"
+            # macOS: find files with execute permission and check if they're executables
+            find "$BUILD_DIR" -type f -perm +111 -exec file {} \; | grep -E "(Mach-O|executable)" | cut -d: -f1 | while read -r exe; do
+              echo "Found executable: $exe"
+              cp "$exe" package/
+            done
+          else
+            echo "Running on Linux, using GNU find"
+            # Linux: use -executable flag
+            find "$BUILD_DIR" -type f -executable -exec file {} \; | grep -E "(ELF|executable)" | cut -d: -f1 | while read -r exe; do
+              echo "Found executable: $exe"
+              cp "$exe" package/
+            done
+          fi
           
-          # Also look for common executable patterns by name
-          find "$BUILD_DIR" -type f -executable ! -name "*.so*" ! -name "*.dylib*" ! -name "*.a" | while read -r exe; do
-            if file "$exe" | grep -qE "(ELF|Mach-O|executable)"; then
-              echo "Found executable by pattern: $exe"
+          # Additional search by common executable patterns (works on both platforms)
+          find "$BUILD_DIR" -type f -perm +111 ! -name "*.so*" ! -name "*.dylib*" ! -name "*.a" -exec file {} \; | grep -E "(ELF|Mach-O|executable)" | cut -d: -f1 | while read -r exe; do
+            basename_exe=$(basename "$exe")
+            if [ ! -f "package/$basename_exe" ]; then
+              echo "Found additional executable: $exe"
               cp "$exe" package/ 2>/dev/null || true
             fi
           done
