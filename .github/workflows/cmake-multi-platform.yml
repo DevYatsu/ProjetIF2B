@@ -48,7 +48,7 @@ jobs:
             c_compiler: clang
             cpp_compiler: clang++
             artifact_name: macos-x64-clang
-            
+
     steps:
       - uses: actions/checkout@v4
 
@@ -109,8 +109,8 @@ jobs:
           # Create ZIP archive
           Compress-Archive -Path "package/*" -DestinationPath "${{ matrix.artifact_name }}.zip" -Force
 
-      - name: Package binaries (Linux)
-        if: runner.os == 'Linux'
+      - name: Package binaries (Linux/macOS)
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           # Create a directory for packaging
@@ -127,9 +127,17 @@ jobs:
           fi
           
           # Find executable files (no extension typically)
-          find "$BUILD_DIR" -type f -executable -exec file {} \; | grep -E "(ELF|executable)" | cut -d: -f1 | while read -r exe; do
+          find "$BUILD_DIR" -type f -executable -exec file {} \; | grep -E "(ELF|Mach-O|executable)" | cut -d: -f1 | while read -r exe; do
             echo "Found executable: $exe"
             cp "$exe" package/
+          done
+          
+          # Also look for common executable patterns by name
+          find "$BUILD_DIR" -type f -executable ! -name "*.so*" ! -name "*.dylib*" ! -name "*.a" | while read -r exe; do
+            if file "$exe" | grep -qE "(ELF|Mach-O|executable)"; then
+              echo "Found executable by pattern: $exe"
+              cp "$exe" package/ 2>/dev/null || true
+            fi
           done
           
           # List what we're packaging
@@ -137,7 +145,12 @@ jobs:
           ls -la package/
           
           # Create tar.gz archive
-          tar -czf ${{ matrix.artifact_name }}.tar.gz -C package .
+          if [ "$(ls -A package/)" ]; then
+            tar -czf ${{ matrix.artifact_name }}.tar.gz -C package .
+          else
+            echo "No files to package, creating empty archive"
+            tar -czf ${{ matrix.artifact_name }}.tar.gz -T /dev/null
+          fi
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -147,6 +160,7 @@ jobs:
             ${{ matrix.artifact_name }}.zip
             ${{ matrix.artifact_name }}.tar.gz
           retention-days: 30
+          if-no-files-found: ignore
 
   release:
     needs: build
@@ -156,21 +170,26 @@ jobs:
       contents: write
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
 
+      - name: List downloaded artifacts
+        run: |
+          echo "Downloaded artifacts:"
+          find artifacts -type f -ls
+
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          draft: false
-          prerelease: false
+        run: |
+          gh release create ${{ github.ref_name }} \
+            --title "Release ${{ github.ref_name }}" \
+            --generate-notes \
+            --repo ${{ github.repository }}
 
       - name: Upload Release Assets
         shell: bash
@@ -178,11 +197,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           for artifact_dir in artifacts/*/; do
-            artifact_name=$(basename "$artifact_dir")
-            for file in "$artifact_dir"*; do
-              if [ -f "$file" ]; then
-                echo "Uploading $file"
-                gh release upload ${{ github.ref_name }} "$file" --repo ${{ github.repository }}
-              fi
-            done
+            if [ -d "$artifact_dir" ]; then
+              artifact_name=$(basename "$artifact_dir")
+              echo "Processing artifact: $artifact_name"
+              for file in "$artifact_dir"*; do
+                if [ -f "$file" ]; then
+                  echo "Uploading $file"
+                  gh release upload ${{ github.ref_name }} "$file" --repo ${{ github.repository }}
+                fi
+              done
+            fi
           done
