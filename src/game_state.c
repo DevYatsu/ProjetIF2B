@@ -114,14 +114,20 @@ void print_board(const GameState *state) {
       }
 
       for (uint8_t j = 0; j < dim; j++) {
-        const Tile piece = state->board.tiles[i][j];
+        const Tile tile = state->board.tiles[i][j];
         AsciiPiece p = {"·····", "·····", "·····"};
 
-        if (piece.some) {
-          if (piece.value.player == User) {
-            p = piece_as_white_ascii(piece.value.kind);
+        if (tile.some) {
+          if (tile.value.player == User) {
+            p = piece_as_white_ascii(tile.value.kind);
           } else {
-            p = piece_as_black_ascii(piece.value.kind);
+            p = piece_as_black_ascii(tile.value.kind);
+          }
+        }else if (tile.captured_by.some) {
+          if (tile.captured_by.player == User) {
+            p = (AsciiPiece) {"█████", "█████", "█████"};
+          } else {
+            p = (AsciiPiece) {"░░░░░", "░░░░░", "░░░░░"};
           }
         }
 
