@@ -9,7 +9,6 @@
 
 int main(void) {
   srand(time(0));
-  // on skip pr le moment c'est trop long
   print_title_screen();
 
   const StartOption option = select_option();
@@ -17,7 +16,10 @@ int main(void) {
 
   GameState game_state;
 
-  // 1 fonction == 1 fonctionnalité
+  // 1 fonction == 1 fonctionnalité !!!!!!
+
+  // le code etant bien segmenté, pas besoin d'ajouter de commentaires
+  // les doc comments font le travail
 
   switch (option) {
   case Start: {
