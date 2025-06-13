@@ -149,7 +149,8 @@ static DeserializeResult parse_tiles(const char *tiles_str, GameState *state,
       char *piece_str = strtok(tile_buffer, ":");
       // se souvient de la chaine gràce à un pointeur static
       char *owner_str = strtok(NULL, ":");
-      char *captured_str = strtok(NULL, ":");
+      // recupere ce qu'il reste
+      char *captured_str = strtok(NULL, " ");
 
       if (!piece_str || !owner_str || !captured_str) {
         return DESERIALIZE_INVALID_FORMAT;
