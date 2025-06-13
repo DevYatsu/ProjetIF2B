@@ -209,6 +209,10 @@ DeserializeResult deserialize_safe(const char *str, GameState *state) {
     } else if (parse_field(line, "turn=", turn_str, sizeof(turn_str))) {
       parsed_fields++;
     } else if (strncmp(line, "dim=", 4) == 0) {
+      if (line[4] < '0' || line[4] > '9') {
+        free(dup);
+        return DESERIALIZE_INVALID_FORMAT;
+      }
       dim = atoi(line + 4);
       if (dim < 6 || dim > 12) {
         free(dup);
