@@ -19,12 +19,12 @@
  * @return char Le caractère validé choisi par l'utilisateur.
  */
 char validate(const char range_start, const char range_end) {
-  char option_char[2]; // Stocke le caractère saisi par l'utilisateur
+  char option_char; // Stocke le caractère saisi par l'utilisateur
   int result = 0;      // Indique le nombre de champs lus correctement par scanf
 
   do {
     print_text("Votre choix : ");
-    result = scanf("%1s", option_char);
+    result = scanf(" %c", &option_char);
 
     int ch;
     // flush l'entrée (enlève les caractères entrés restants jusqu'à la fin de
@@ -33,16 +33,16 @@ char validate(const char range_start, const char range_end) {
     }
 
     // Vérifie si l'entrée est valide
-    if (!result || !isdigit(option_char[0]) || option_char[0] < range_start ||
-        option_char[0] > range_end) {
+    if (!result || !isdigit(option_char) || option_char < range_start ||
+        option_char > range_end) {
       print_text("Choix invalide.\n");
     }
 
-  } while (!result || !isdigit(option_char[0]) ||
-           option_char[0] < range_start || option_char[0] > range_end);
+  } while (!result || !isdigit(option_char) ||
+           option_char < range_start || option_char > range_end);
 
   // Retourne le numéro validé
-  return option_char[0];
+  return option_char;
 }
 
 StartOption select_option() {
