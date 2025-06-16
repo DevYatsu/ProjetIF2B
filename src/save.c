@@ -271,6 +271,7 @@ DeserializeResult deserialize_safe(const char *str, GameState *state) {
 
   if (tiles_result != DESERIALIZE_SUCCESS) {
     free_board(&state->board);
+
     return tiles_result;
   }
 

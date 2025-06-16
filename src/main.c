@@ -47,6 +47,7 @@ int main(void) {
   }
   case Leave:
     print_bye();
+
     return 0;
   default:
     // unreachable
@@ -94,7 +95,7 @@ int main(void) {
         return 1;
       }
 
-      game_state.is_turn_of = (game_state.is_turn_of == User) ? Opponent : User;
+      toggle_user_turn(&game_state);
       clear_screen();
       break;
     }
